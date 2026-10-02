@@ -57,6 +57,12 @@ The Colebrook–White equation is solved iteratively, starting from the explicit
 Haaland approximation. Tests compare it with Moody-chart reference values and
 with the Blasius correlation for smooth pipes.
 
+## Interactive notes
+
+[Newton's laws — Physics I notes](https://gpchatzis-a11y.github.io/mech-tools/) (in Greek):
+theory, animated labs (incline with friction, Atwood machine, terminal velocity,
+variable-mass rocket), exercises with answer checking and a quiz. Source: `docs/index.html`.
+
 ## Run it yourself
 
 Requires Python 3.9+ with NumPy (and Matplotlib for the charts).

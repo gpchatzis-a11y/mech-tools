@@ -1,0 +1,1366 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Οι Νόμοι του Νεύτωνα</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Commissioner:wght@500;600;700;800&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Fira+Mono:wght@400;500&display=swap">
+<script>
+window.MathJax = { tex:{ inlineMath:[["\\(","\\)"]], displayMath:[["\\[","\\]"]] }, svg:{ fontCache:"global" }, options:{ enableMenu:false } };
+</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+<style>
+/* Layout: a mechanics lab notebook — a sticky law switcher, then one reading column per law; each law's prose wraps around a live "bench" canvas whose force arrows share one colour code across the page (blue applied, orange friction, violet weight, green normal). */
+:root{
+  --bg:#f2f4f7; --paper:#ffffff; --ink:#141a24; --muted:#5b6575; --line:#d9dee6;
+  --accent:#2f4fd6; --accent-ink:#ffffff; --accent-soft:#e6ebfc;
+  --f-app:#2f6fe0; --f-fric:#d9771f; --f-wt:#8b4fd1; --f-norm:#1f9a5c; --f-other:#c43d57;
+  --good:#23794a; --good-soft:#e1f2e8; --bad:#b4372f; --bad-soft:#f8e2df;
+  --note:#8a5a00; --note-soft:#fbf0d9;
+  --stage:#fafbfc; --ground:#c9d0da; --grid:#e6eaf0;
+  --f-display:"Commissioner",system-ui,sans-serif;
+  --f-body:"Literata",Georgia,serif;
+  --f-ui:"Commissioner",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"Fira Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1119; --paper:#141a25; --ink:#e4e8ef; --muted:#97a1b1; --line:#262f3d;
+  --accent:#7d97ff; --accent-ink:#0b1020; --accent-soft:#1b2440;
+  --f-app:#6aa1ff; --f-fric:#f0a050; --f-wt:#b48af0; --f-norm:#5ccf8f; --f-other:#f07a90;
+  --good:#6cc790; --good-soft:#15301f; --bad:#ef8a80; --bad-soft:#3a1c19;
+  --note:#e7b75a; --note-soft:#33280f;
+  --stage:#10161f; --ground:#384354; --grid:#1e2733; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1119; --paper:#141a25; --ink:#e4e8ef; --muted:#97a1b1; --line:#262f3d;
+  --accent:#7d97ff; --accent-ink:#0b1020; --accent-soft:#1b2440;
+  --f-app:#6aa1ff; --f-fric:#f0a050; --f-wt:#b48af0; --f-norm:#5ccf8f; --f-other:#f07a90;
+  --good:#6cc790; --good-soft:#15301f; --bad:#ef8a80; --bad-soft:#3a1c19;
+  --note:#e7b75a; --note-soft:#33280f;
+  --stage:#10161f; --ground:#384354; --grid:#1e2733; color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{background:var(--bg);color:var(--ink);font:17px/1.65 var(--f-body);padding-inline:16px;padding-block:0 64px}
+.wrap{max-width:760px;margin:0 auto}
+h1,h2,h3,h4{font-family:var(--f-display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2rem,6vw,2.7rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.55rem;font-weight:700}
+h3{font-size:1.08rem;font-weight:600;margin-top:1.4em}
+p{margin:.7em 0}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.eyebrow{font:600 .74rem/1 var(--f-ui);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.hero{padding-block:30px 14px;display:grid;gap:12px}
+.hero p{margin:0;color:var(--muted);font-size:1.02rem;max-width:58ch}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font:500 .82rem var(--f-ui);color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:18px;height:3px;border-radius:2px;display:inline-block;position:relative}
+.legend i::after{content:"";position:absolute;right:-3px;top:-3px;border-left:6px solid currentColor;border-top:4.5px solid transparent;border-bottom:4.5px solid transparent;color:inherit}
+.progress{display:flex;align-items:center;gap:10px;font:500 .85rem var(--f-ui);color:var(--muted)}
+.bar{flex:1;max-width:240px;height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--good);transition:width .3s}
+nav.rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);margin-inline:-16px;padding:8px 16px}
+.rail-inner{max-width:760px;margin:0 auto;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.rail-inner::-webkit-scrollbar{display:none}
+.rail a{flex:none;font:600 .82rem/1 var(--f-ui);text-decoration:none;color:var(--ink);padding:8px 12px;border:1px solid var(--line);border-radius:99px;background:var(--paper);white-space:nowrap}
+.rail a.done{border-color:var(--good);color:var(--good)}
+.rail a.done::before{content:"✓ "}
+section.law{padding-block:36px 10px;border-bottom:1px solid var(--line);scroll-margin-top:60px}
+.law-head{display:grid;gap:6px}
+.law-num{font:800 3.2rem/0.9 var(--f-display);color:var(--accent);letter-spacing:-.04em}
+.statement{font:italic 1.15rem/1.55 var(--f-body);border-left:3px solid var(--accent);padding:4px 0 4px 14px;margin:14px 0}
+.mj{overflow-x:auto;overflow-y:hidden;padding-block:2px}
+.box{border-radius:8px;padding:12px 14px;margin:1em 0;font-size:.97rem}
+.box > :first-child{margin-top:0}.box > :last-child{margin-bottom:0}
+.box.remember{background:var(--note-soft);border:1px solid color-mix(in srgb,var(--note) 30%,transparent)}
+.box.remember::before{content:"Να θυμάσαι";display:block;font:600 .72rem/1 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--note);margin-bottom:6px}
+.box.myth{background:var(--bad-soft);border:1px solid color-mix(in srgb,var(--bad) 30%,transparent)}
+.box.myth::before{content:"Συνηθισμένη παρανόηση";display:block;font:600 .72rem/1 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--bad);margin-bottom:6px}
+.box.goals{background:var(--paper);border:1px solid var(--line);margin:4px 0}
+.box.goals::before{content:"Μαθησιακοί στόχοι · μετά από αυτό το κεφάλαιο";display:block;font:600 .72rem/1 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.box.goals ul{margin:0;padding-left:1.2em;font:.92rem/1.5 var(--f-ui);display:grid;gap:4px}
+.box.deriv{background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 25%,transparent)}
+ul,ol{padding-left:1.3em}
+li{margin:.3em 0}
+ol.method{counter-reset:st;list-style:none;padding:0;display:grid;gap:8px}
+ol.method li{counter-increment:st;position:relative;padding:10px 12px 10px 46px;background:var(--paper);border:1px solid var(--line);border-radius:8px;margin:0;font-size:.97rem}
+ol.method li::before{content:counter(st);position:absolute;left:12px;top:10px;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font:700 .8rem/24px var(--f-ui);text-align:center}
+.lvl{font:600 .78rem/1 var(--f-ui);color:var(--note);letter-spacing:.05em;margin-left:auto}
+.seg{gap:0}
+.seg button{border-radius:0}
+.seg button:first-child{border-radius:6px 0 0 6px}
+.seg button:last-child{border-radius:0 6px 6px 0;margin-left:-1px}
+.bench{background:var(--paper);border:1px solid var(--line);border-radius:10px;margin:1.4em 0;overflow:hidden}
+.bench-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--accent-soft)}
+.bench-head h4{font-size:.95rem;color:var(--accent)}
+.bench-head h4 small{font-weight:500;color:var(--muted)}
+.bench-body{padding:14px;display:grid;gap:12px;font:.92rem/1.5 var(--f-ui)}
+.bench canvas{width:100%;display:block;border-radius:6px;background:var(--stage);border:1px solid var(--line);touch-action:manipulation}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px 16px}
+.ctl{display:grid;gap:3px;min-width:0}
+.ctl label{display:flex;justify-content:space-between;gap:8px;font-size:.84rem;color:var(--muted)}
+.ctl output{font-family:var(--f-mono);color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=text]{font:500 .95rem var(--f-mono);padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
+.btns{display:flex;flex-wrap:wrap;gap:6px}
+button{font:600 .85rem/1 var(--f-ui);padding:10px 13px;border-radius:6px;border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.ro{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;min-width:0}
+.ro span{display:block;font-size:.74rem;color:var(--muted)}
+.ro b{font:500 1.02rem var(--f-mono);font-variant-numeric:tabular-nums}
+.ro.hi{border-color:var(--accent);background:var(--accent-soft)}
+.hint{font-size:.84rem;color:var(--muted);margin:0}
+.learned{display:flex;align-items:center;gap:10px;margin:18px 0 6px;font:600 .9rem var(--f-ui)}
+.learned input{width:20px;height:20px;accent-color:var(--good)}
+.ex{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px;margin:14px 0}
+.ex h3{margin:0 0 4px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.tag{font:600 .72rem/1 var(--f-ui);padding:4px 7px;border-radius:4px;background:var(--accent-soft);color:var(--accent)}
+.tag.ok{background:var(--good-soft);color:var(--good)}
+.answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:10px 0}
+.answers label{display:grid;gap:3px;font:.82rem var(--f-ui);color:var(--muted)}
+.answers input.ok{border-color:var(--good);background:var(--good-soft)}
+.answers input.bad{border-color:var(--bad);background:var(--bad-soft)}
+.feedback{font:.88rem var(--f-ui);margin-top:6px;min-height:1.2em}
+details{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}
+summary{cursor:pointer;font:600 .88rem var(--f-ui);color:var(--accent)}
+details ol{padding-left:1.2em;margin:.6em 0;font-size:.95rem}
+.q{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px;margin:12px 0}
+.q p{margin:0 0 8px;font:600 .96rem/1.45 var(--f-ui)}
+.opts{display:grid;gap:6px}
+.opts button{text-align:left;line-height:1.35;font-weight:500;font-size:.9rem}
+.opts button.right{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+.opts button.wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.why{font:.88rem/1.5 var(--f-ui);color:var(--muted);margin-top:8px}
+.score{font:600 1rem var(--f-ui);color:var(--muted)}
+.sheet{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:10px}
+.sheet > div{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-width:0}
+.sheet h4{font-size:.85rem;color:var(--muted)}
+footer{font:.82rem/1.5 var(--f-ui);color:var(--muted);padding-top:24px}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+<header class="hero">
+  <span class="eyebrow">Φυσική Ι · Μηχανολόγοι Μηχανικοί · Δυναμική υλικού σημείου</span>
+  <h1>Οι νόμοι του Νεύτωνα</h1>
+  <p>Σημειώσεις παραδόσεων με διαδραστικά πειράματα. Κάθε ενότητα έχει τη θεωρία με τις αποδείξεις και ένα ή περισσότερα εργαστήρια όπου αλλάζεις τις παραμέτρους. Στο τέλος υπάρχουν ασκήσεις επιπέδου εξετάσεων με έλεγχο της απάντησης.</p>
+  <div class="box goals">
+    <ul>
+      <li>Ορίζεις το αδρανειακό σύστημα αναφοράς και εξηγείς γιατί οι νόμοι ισχύουν μόνο εκεί.</li>
+      <li>Σχεδιάζεις σωστό διάγραμμα ελεύθερου σώματος και γράφεις τις εξισώσεις κίνησης σε συνιστώσες.</li>
+      <li>Λύνεις προβλήματα με κεκλιμένα επίπεδα, τριβή, νήματα, τροχαλίες και συζευγμένα σώματα.</li>
+      <li>Γράφεις και ολοκληρώνεις τη διαφορική εξίσωση κίνησης όταν η δύναμη εξαρτάται από τον χρόνο ή την ταχύτητα.</li>
+      <li>Εφαρμόζεις τον 3ο νόμο σε συστήματα σωμάτων: εσωτερικές δυνάμεις, ορμή, κέντρο μάζας, σώματα μεταβλητής μάζας.</li>
+    </ul>
+  </div>
+  <p class="hint">Προαπαιτούμενα: διανύσματα, παράγωγοι και απλά ολοκληρώματα, ευθύγραμμη κίνηση. Μονάδες SI, \(g=9.81\) m/s².</p>
+  <div class="legend" aria-label="Χρώματα δυνάμεων">
+    <span style="color:var(--f-app)"><i style="background:var(--f-app)"></i>Εφαρμοζόμενη F</span>
+    <span style="color:var(--f-fric)"><i style="background:var(--f-fric)"></i>Τριβή f, αντίσταση D</span>
+    <span style="color:var(--f-wt)"><i style="background:var(--f-wt)"></i>Βάρος W</span>
+    <span style="color:var(--f-norm)"><i style="background:var(--f-norm)"></i>Κάθετη N</span>
+    <span style="color:var(--f-other)"><i style="background:var(--f-other)"></i>Τάση νήματος T</span>
+  </div>
+  <div class="progress"><span id="progText">0 από 4 ενότητες</span><div class="bar"><i id="progBar"></i></div></div>
+</header>
+</div>
+
+<nav class="rail" aria-label="Ενότητες">
+  <div class="rail-inner">
+    <a href="#law1" data-sec="law1">1 · Αδράνεια</a>
+    <a href="#law2" data-sec="law2">2 · Εξίσωση κίνησης</a>
+    <a href="#forces" data-sec="forces">3 · Δυνάμεις & εφαρμογές</a>
+    <a href="#law3" data-sec="law3">4 · Δράση–αντίδραση</a>
+    <a href="#ask">Ασκήσεις</a>
+    <a href="#quiz">Κουίζ</a>
+    <a href="#sheet">Τυπολόγιο</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- 1. LAW 1 -->
+<section class="law" id="law1">
+  <div class="law-head"><span class="law-num">1</span><h2>1ος νόμος: αδράνεια και αδρανειακά συστήματα</h2></div>
+  <p class="statement">Κάθε σώμα διατηρεί την κατάσταση ηρεμίας ή ευθύγραμμης ομαλής κίνησης, εφόσον η συνισταμένη των δυνάμεων που ασκούνται πάνω του είναι μηδέν.</p>
+  <div class="mj">\[\sum\vec F=0\quad\Longleftrightarrow\quad\vec v=\text{σταθερό}\]</div>
+  <p>Για τον Αριστοτέλη η «φυσική» κατάσταση ενός σώματος ήταν η ακινησία. Ο Γαλιλαίος έδειξε ότι αυτό που σταματάει ένα σώμα δεν είναι η έλλειψη δύναμης, αλλά μια δύναμη: η τριβή ή η αντίσταση του αέρα.</p>
+
+  <h3>Τι λέει πραγματικά ο νόμος</h3>
+  <p>Αν τον διαβάσεις βιαστικά, ο 1ος νόμος μοιάζει ειδική περίπτωση του 2ου (\(\sum\vec F=0\Rightarrow\vec a=0\)). Το πραγματικό του περιεχόμενο είναι ένα <b>αξίωμα ύπαρξης</b>: υπάρχουν συστήματα αναφοράς στα οποία ένα σώμα που δεν αλληλεπιδρά με τίποτα κινείται με σταθερή ταχύτητα. Αυτά λέγονται <b>αδρανειακά</b>, και ο 2ος και ο 3ος νόμος διατυπώνονται ως προς αυτά.</p>
+
+  <h3>Μετασχηματισμός Γαλιλαίου</h3>
+  <p>Έστω ότι το σύστημα \(S'\) κινείται με σταθερή ταχύτητα \(\vec V\) ως προς το αδρανειακό \(S\), και οι αρχές τους συμπίπτουν τη στιγμή \(t=0\). Τότε:</p>
+  <div class="mj">\[\vec r=\vec r\,'+\vec V t,\qquad \vec v=\vec v\,'+\vec V,\qquad \vec a=\vec a\,'\]</div>
+  <p>Η επιτάχυνση είναι ίδια και στα δύο συστήματα, άρα και η \(m\vec a\). Συνεπώς <b>κάθε σύστημα που κινείται ομαλά ως προς ένα αδρανειακό είναι κι αυτό αδρανειακό</b>, και κανένα μηχανικό πείραμα δεν μπορεί να ξεχωρίσει ποιο «κινείται πραγματικά». Αυτή είναι η αρχή της σχετικότητας του Γαλιλαίου.</p>
+  <p>Η επιφάνεια της Γης δεν είναι ακριβώς αδρανειακή. Λόγω της περιστροφής, στον ισημερινό έχει κεντρομόλο επιτάχυνση \(\omega^2R\approx0.034\) m/s², δηλαδή περίπου 0.3% του \(g\). Στα περισσότερα προβλήματα μηχανικού την αγνοούμε.</p>
+
+  <h3>Μάζα αδράνειας</h3>
+  <p>Η αντίσταση ενός σώματος στη μεταβολή της κίνησής του λέγεται <b>αδράνεια</b>, και μέτρο της είναι η <b>μάζα</b>. Λειτουργικά: όταν δύο σώματα αλληλεπιδρούν μόνο μεταξύ τους, ο λόγος των επιταχύνσεών τους είναι πάντα ο ίδιος, \(m_1/m_2=a_2/a_1\). Έτσι συγκρίνεται κάθε μάζα με το πρότυπο του 1 kg.</p>
+
+  <div class="bench">
+    <div class="bench-head"><h4>Κύβος σε επιφάνεια <small>· βάλε την τριβή στο μηδέν</small></h4></div>
+    <div class="bench-body">
+      <canvas id="c1" height="170" aria-label="Κύβος που γλιστράει σε επιφάνεια με τριβή"></canvas>
+      <canvas id="g1" height="120" aria-label="Γράφημα ταχύτητας-χρόνου"></canvas>
+      <div class="controls">
+        <div class="ctl"><label for="s1mu"><span>Συντελεστής τριβής μ<sub>k</sub> </span><output id="o1mu"></output></label><input id="s1mu" type="range" min="0" max="0.5" step="0.01" value="0.1"></div>
+        <div class="ctl"><label for="s1v"><span>Αρχική ταχύτητα v₀ </span><output id="o1v"></output></label><input id="s1v" type="range" min="1" max="8" step="0.5" value="5"></div>
+      </div>
+      <div class="btns"><button type="button" class="primary" id="b1push">Σπρώξε τον κύβο</button></div>
+      <div class="readout">
+        <div class="ro hi"><span>Ταχύτητα v</span><b id="r1v"></b></div>
+        <div class="ro"><span>Απόσταση</span><b id="r1x"></b></div>
+        <div class="ro"><span>a = −μ<sub>k</sub>g</span><b id="r1a"></b></div>
+      </div>
+      <p class="hint">Με μ<sub>k</sub> = 0 η μόνη οριζόντια δύναμη μηδενίζεται και η καμπύλη v–t γίνεται οριζόντια: ο κύβος συνεχίζει επ' άπειρον. Με τριβή, η v(t) είναι ευθεία με κλίση −μ<sub>k</sub>g και ο κύβος σταματά σε απόσταση v₀²/(2μ<sub>k</sub>g).</p>
+    </div>
+  </div>
+
+  <div class="bench">
+    <div class="bench-head"><h4>Ο επιβάτης που φρενάρει <small>· αδρανειακό και μη αδρανειακό σύστημα</small></h4></div>
+    <div class="bench-body">
+      <canvas id="c1b" height="190" aria-label="Λεωφορείο που φρενάρει με επιβάτη"></canvas>
+      <div class="btns">
+        <button type="button" class="primary" id="b1brake">Φρένο!</button>
+        <button type="button" id="b1belt" aria-pressed="false">Ζώνη ασφαλείας</button>
+        <button type="button" id="b1again">Ξανά</button>
+      </div>
+      <p class="hint" id="h1b">Το λεωφορείο τρέχει με 15 m/s και φρενάρει με 7 m/s². Στο σύστημα του δρόμου (αδρανειακό) καμία οριζόντια δύναμη δεν ασκείται στον επιβάτη: συνεχίζει με 15 m/s, ενώ το λεωφορείο επιβραδύνεται κάτω από αυτόν.</p>
+    </div>
+  </div>
+  <div class="box remember"><p>Στο σύστημα του λεωφορείου, που επιβραδύνεται και άρα <b>δεν</b> είναι αδρανειακό, ο επιβάτης επιταχύνεται προς τα εμπρός χωρίς να ασκείται καμία δύναμη πάνω του. Εκεί ο 1ος νόμος δεν ισχύει. Για να τον «σώσουμε» προσθέτουμε μια ψευδοδύναμη \(-m\vec a_0\), όπως θα δούμε στην <a href="#nonin">ενότητα 3</a>.</p></div>
+
+  <div class="box myth"><p>«Για να κινείται ένα σώμα, χρειάζεται δύναμη.» Όχι: δύναμη χρειάζεται για να <b>αλλάξει</b> η ταχύτητα, σε μέτρο ή σε κατεύθυνση. Ένα αεροπλάνο σε ευθεία πτήση με σταθερή ταχύτητα έχει \(\sum\vec F=0\): η ώση ισορροπεί την αντίσταση και η άνωση το βάρος.</p></div>
+  <label class="learned"><input type="checkbox" data-learn="law1"> Κατάλαβα την ενότητα 1</label>
+</section>
+
+<!-- 2. LAW 2 -->
+<section class="law" id="law2">
+  <div class="law-head"><span class="law-num">2</span><h2>2ος νόμος: η εξίσωση κίνησης</h2></div>
+  <p class="statement">Ο ρυθμός μεταβολής της ορμής ενός σώματος ισούται με τη συνισταμένη των δυνάμεων που ασκούνται πάνω του.</p>
+  <div class="mj">\[\sum\vec F=\frac{d\vec p}{dt},\quad \vec p=m\vec v\qquad\xrightarrow{\;m=\text{σταθ.}\;}\qquad \sum\vec F=m\vec a=m\frac{d^2\vec r}{dt^2}\]</div>
+  <p>Ο νόμος ορίζει και τη μονάδα δύναμης: \(1\ \text{N}=1\ \text{kg·m/s}^2\). Είναι διανυσματική εξίσωση, άρα ισοδυναμεί με τρεις βαθμωτές, μία για κάθε άξονα, που λύνονται ανεξάρτητα:</p>
+  <div class="mj">\[\sum F_x=m\ddot x,\qquad \sum F_y=m\ddot y,\qquad \sum F_z=m\ddot z\]</div>
+
+  <h3>Ο νόμος ως διαφορική εξίσωση</h3>
+  <p>Γενικά η δύναμη μπορεί να εξαρτάται από τη θέση, την ταχύτητα και τον χρόνο. Τότε ο 2ος νόμος είναι μια διαφορική εξίσωση 2ης τάξης:</p>
+  <div class="mj">\[m\,\ddot{\vec r}=\vec F(\vec r,\dot{\vec r},t),\qquad \vec r(0)=\vec r_0,\quad \dot{\vec r}(0)=\vec v_0\]</div>
+  <p>Με γνωστή τη δύναμη και τις αρχικές συνθήκες, η κίνηση προσδιορίζεται μονοσήμαντα. Για κίνηση σε μία διάσταση, οι τυπικές περιπτώσεις είναι:</p>
+  <ul>
+    <li><b>\(F=\)σταθ.:</b> ομαλά επιταχυνόμενη κίνηση, \(v=v_0+\frac{F}{m}t\), \(x=x_0+v_0t+\frac{F}{2m}t^2\).</li>
+    <li><b>\(F=F(t)\):</b> ολοκληρώνεις απευθείας, \(v(t)=v_0+\frac1m\int_0^t F\,dt'\).</li>
+    <li><b>\(F=F(v)\):</b> χωρίζεις μεταβλητές, \(\displaystyle\int_{v_0}^{v}\frac{m\,dv'}{F(v')}=t\). Δες την <a href="#drag">οριακή ταχύτητα</a>.</li>
+    <li><b>\(F=F(x)\):</b> γράφεις \(a=v\,\frac{dv}{dx}\), οπότε \(\tfrac12mv^2-\tfrac12mv_0^2=\int_{x_0}^{x}F\,dx'\). Αυτό είναι το θεώρημα έργου–ενέργειας, που έρχεται στο επόμενο κεφάλαιο.</li>
+  </ul>
+  <div class="box deriv">
+    <p><b>Παράδειγμα.</b> Σε σώμα μάζας \(m\), αρχικά ακίνητο στο \(x=0\), ασκείται δύναμη που αυξάνεται γραμμικά με τον χρόνο, \(F=ct\). Τότε:</p>
+    <div class="mj">\[\ddot x=\frac{c}{m}t\;\Rightarrow\; v=\frac{c}{2m}t^2\;\Rightarrow\; x=\frac{c}{6m}t^3\]</div>
+    <p>Οι τύποι της σταθερής επιτάχυνσης εδώ <b>δεν</b> ισχύουν. Είναι συχνό λάθος στις εξετάσεις να χρησιμοποιούνται χωρίς να ελεγχθεί ότι η δύναμη είναι σταθερή.</p>
+  </div>
+
+  <h3>Μέθοδος επίλυσης</h3>
+  <ol class="method">
+    <li>Κάνε σχήμα και μετάτρεψε όλα τα δεδομένα σε SI.</li>
+    <li>Απομόνωσε <b>κάθε</b> σώμα και σχεδίασε το διάγραμμα ελεύθερου σώματος: μόνο τις δυνάμεις που ασκούνται <b>πάνω του</b>. Για κάθε δύναμη πρέπει να μπορείς να πεις ποιο σώμα την ασκεί. Το \(m\vec a\) δεν είναι δύναμη και δεν μπαίνει στο διάγραμμα.</li>
+    <li>Διάλεξε άξονες για κάθε σώμα, με τον έναν παράλληλο στην επιτάχυνση που περιμένεις.</li>
+    <li>Γράψε \(\sum F_x=ma_x\) και \(\sum F_y=ma_y\) για κάθε σώμα.</li>
+    <li>Πρόσθεσε τις εξισώσεις δεσμών: μη εκτατό νήμα σημαίνει ίδιο μέτρο επιτάχυνσης, αβαρές νήμα σημαίνει ίδια τάση.</li>
+    <li>Λύσε <b>συμβολικά</b>. Έλεγξε τις διαστάσεις και τις οριακές περιπτώσεις (\(\mu\to0\), \(\theta\to90^\circ\), \(m_1=m_2\)). Μόνο στο τέλος βάλε αριθμούς.</li>
+  </ol>
+  <p>Για κιβώτιο σε οριζόντιο δάπεδο που το σπρώχνεις με οριζόντια δύναμη \(F\) και ολισθαίνει:</p>
+  <div class="mj">\[\sum F_y=N-mg=0\Rightarrow N=mg,\qquad f_k=\mu_k N,\qquad a=\frac{F-\mu_k mg}{m}\]</div>
+
+  <div class="bench">
+    <div class="bench-head"><h4>Καρότσι με δύναμη και μάζα <small>· διάγραμμα ελεύθερου σώματος ζωντανά</small></h4></div>
+    <div class="bench-body">
+      <canvas id="c2" height="210" aria-label="Καρότσι που επιταχύνεται από δύναμη"></canvas>
+      <canvas id="g2" height="130" aria-label="Γράφημα ταχύτητας-χρόνου"></canvas>
+      <div class="controls">
+        <div class="ctl"><label for="s2F"><span>Δύναμη F </span><output id="o2F"></output></label><input id="s2F" type="range" min="0" max="60" step="1" value="20"></div>
+        <div class="ctl"><label for="s2m"><span>Μάζα m </span><output id="o2m"></output></label><input id="s2m" type="range" min="1" max="20" step="0.5" value="5"></div>
+        <div class="ctl"><label for="s2mu"><span>Τριβή μ (μ<sub>s</sub> = μ<sub>k</sub>) </span><output id="o2mu"></output></label><input id="s2mu" type="range" min="0" max="0.5" step="0.01" value="0.1"></div>
+      </div>
+      <div class="btns">
+        <button type="button" class="primary" id="b2go">Ξεκίνα</button>
+        <button type="button" id="b2race" aria-pressed="false">Αγώνας: δεύτερο καρότσι με 2m</button>
+        <button type="button" id="b2reset">Από την αρχή</button>
+      </div>
+      <div class="readout">
+        <div class="ro"><span>Τριβή f</span><b id="r2T"></b></div>
+        <div class="ro"><span>ΣF</span><b id="r2S"></b></div>
+        <div class="ro hi"><span>a = ΣF/m</span><b id="r2a"></b></div>
+        <div class="ro"><span>v, x</span><b id="r2v"></b></div>
+      </div>
+      <p class="hint" id="h2"></p>
+    </div>
+  </div>
+
+  <div class="box remember"><p><b>Μάζα ≠ βάρος.</b> Η μάζα σε kg είναι ιδιότητα του σώματος. Το βάρος \(W=mg\) σε N είναι δύναμη και εξαρτάται από το πεδίο βαρύτητας. Ένας αστροναύτης 80 kg ζυγίζει 785 N στη Γη και 130 N στη Σελήνη, αλλά χρειάζεται την ίδια δύναμη για να επιταχυνθεί οριζόντια με 1 m/s². Το ότι η βαρυτική μάζα είναι ίση με την αδρανειακή είναι πειραματικό γεγονός, που μετρήθηκε με ακρίβεια καλύτερη από \(10^{-14}\).</p></div>
+  <div class="box myth"><p>«Τα βαριά σώματα πέφτουν πιο γρήγορα.» Στο κενό, \(a=W/m=g\) για κάθε σώμα. Τη διπλάσια βαρυτική δύναμη την αναιρεί ακριβώς η διπλάσια αδράνεια. Στον αέρα η αντίσταση αλλάζει την εικόνα, όπως θα δούμε στην <a href="#drag">οριακή ταχύτητα</a>.</p></div>
+  <label class="learned"><input type="checkbox" data-learn="law2"> Κατάλαβα την ενότητα 2</label>
+</section>
+
+<!-- 3. FORCES & APPLICATIONS -->
+<section class="law" id="forces">
+  <div class="law-head"><span class="law-num">3</span><h2>Δυνάμεις στην πράξη και εφαρμογές</h2></div>
+
+  <h3>Οι δυνάμεις που συναντάμε</h3>
+  <ul>
+    <li><b>Βάρος</b> \(\vec W=m\vec g\): πάντα κατακόρυφο, προς τα κάτω.</li>
+    <li><b>Κάθετη αντίδραση</b> \(N\): κάθετη στην επιφάνεια επαφής, με όποιο μέτρο χρειάζεται ώστε το σώμα να μη διεισδύει στην επιφάνεια. <b>Δεν είναι πάντα \(mg\).</b></li>
+    <li><b>Τάση νήματος</b> \(T\): κατά μήκος του νήματος και μόνο ελκτική. Σε αβαρές νήμα, και μέσω αβαρούς τροχαλίας χωρίς τριβές, η τάση είναι ίδια σε όλο το μήκος.</li>
+    <li><b>Τριβή ολίσθησης</b> \(f_k=\mu_kN\): αντίθετη στη <i>σχετική</i> ταχύτητα των επιφανειών.</li>
+    <li><b>Στατική τριβή</b> \(f_s\le\mu_sN\): παίρνει όποια τιμή χρειάζεται, από 0 έως \(\mu_sN\), για να μην ολισθήσουν οι επιφάνειες. Συνήθως \(\mu_s>\mu_k\), γι' αυτό είναι πιο δύσκολο να ξεκινήσεις ένα βαρύ έπιπλο απ' ό,τι να το κρατάς σε κίνηση.</li>
+    <li><b>Ελατήριο</b> \(F=-kx\) (νόμος του Hooke), όπου \(x\) η επιμήκυνση από το φυσικό μήκος.</li>
+    <li><b>Αντίσταση ρευστού</b> \(D\): σε μικρές ταχύτητες είναι γραμμική, \(D=bv\) (Stokes, \(b=6\pi\eta R\) για σφαίρα). Σε μεγάλες είναι τετραγωνική, \(D=\tfrac12C_D\rho Av^2\).</li>
+  </ul>
+  <div class="box myth"><p>«Η στατική τριβή είναι \(\mu_sN\).» Μόνο στο όριο ολίσθησης. Αν σπρώχνεις ένα ακίνητο κιβώτιο με 20 N και δεν κουνιέται, η στατική τριβή είναι ακριβώς 20 N, όσο μεγάλο κι αν είναι το \(\mu_sN\).</p></div>
+
+  <h3>Κεκλιμένο επίπεδο</h3>
+  <p>Βάζεις άξονες παράλληλα και κάθετα στο επίπεδο. Έτσι μόνο το βάρος χρειάζεται ανάλυση σε συνιστώσες:</p>
+  <div class="mj">\[\sum F_\perp:\ N-mg\cos\theta=0\ \Rightarrow\ N=mg\cos\theta\qquad\quad \sum F_\parallel:\ mg\sin\theta-f=ma\]</div>
+  <p><b>Ισορροπία:</b> το σώμα μένει ακίνητο αν η στατική τριβή που χρειάζεται, \(mg\sin\theta\), δεν ξεπερνά το \(\mu_sN\):</p>
+  <div class="mj">\[mg\sin\theta\le\mu_s mg\cos\theta\iff\tan\theta\le\mu_s,\qquad \theta_c=\arctan\mu_s\]</div>
+  <p>Έτσι μετράμε πειραματικά το \(\mu_s\): αυξάνουμε την κλίση μέχρι να ξεκινήσει η ολίσθηση. <b>Ολίσθηση:</b> \(a=g(\sin\theta-\mu_k\cos\theta)\), ανεξάρτητη από τη μάζα.</p>
+
+  <div class="bench">
+    <div class="bench-head"><h4>Κεκλιμένο επίπεδο <small>· στατική και κινητική τριβή</small></h4></div>
+    <div class="bench-body">
+      <canvas id="cI" height="250" aria-label="Κιβώτιο σε κεκλιμένο επίπεδο με τις δυνάμεις"></canvas>
+      <div class="controls">
+        <div class="ctl"><label for="sIth"><span>Γωνία θ </span><output id="oIth"></output></label><input id="sIth" type="range" min="0" max="60" step="1" value="20"></div>
+        <div class="ctl"><label for="sIms"><span>μ<sub>s</sub> </span><output id="oIms"></output></label><input id="sIms" type="range" min="0" max="1" step="0.01" value="0.45"></div>
+        <div class="ctl"><label for="sImk"><span>μ<sub>k</sub> (≤ μ<sub>s</sub>) </span><output id="oImk"></output></label><input id="sImk" type="range" min="0" max="1" step="0.01" value="0.30"></div>
+      </div>
+      <div class="btns">
+        <button type="button" class="primary" id="bIgo">Άφησε το κιβώτιο</button>
+        <button type="button" id="bIcomp" aria-pressed="true">Συνιστώσες βάρους</button>
+        <button type="button" id="bIreset">Επαναφορά</button>
+      </div>
+      <div class="readout">
+        <div class="ro"><span>N = mg cosθ</span><b id="rIN"></b></div>
+        <div class="ro"><span>Τριβή f</span><b id="rIf"></b></div>
+        <div class="ro"><span>θ<sub>c</sub> = arctan μ<sub>s</sub></span><b id="rIc"></b></div>
+        <div class="ro hi"><span>a</span><b id="rIa"></b></div>
+        <div class="ro"><span>v</span><b id="rIv"></b></div>
+      </div>
+      <p class="hint" id="hI">Μάζα κιβωτίου 2 kg. Αύξησε σιγά-σιγά τη γωνία πάνω από τη θ<sub>c</sub> και δες τη στατική τριβή να «σπάει».</p>
+    </div>
+  </div>
+
+  <h3>Συζευγμένα σώματα: μηχανή Atwood</h3>
+  <p>Δύο μάζες κρέμονται από μη εκτατό, αβαρές νήμα που περνά από αβαρή τροχαλία χωρίς τριβές. Οι δεσμοί δίνουν ίδιο μέτρο επιτάχυνσης \(a\) και ίδια τάση \(T\) στα δύο σώματα. Με \(m_2>m_1\), το \(m_2\) κατεβαίνει:</p>
+  <div class="mj">\[\begin{aligned} m_2g-T&=m_2a\\ T-m_1g&=m_1a\end{aligned}\qquad\Longrightarrow\qquad a=\frac{m_2-m_1}{m_1+m_2}\,g,\qquad T=\frac{2m_1m_2}{m_1+m_2}\,g\]</div>
+  <p><b>Έλεγχος ορίων:</b> για \(m_1=m_2\) βγαίνει \(a=0\) και \(T=mg\). Για \(m_1\to0\) βγαίνει \(a\to g\) και \(T\to0\), δηλαδή ελεύθερη πτώση. Η τάση είναι πάντα ανάμεσα στο \(m_1g\) και στο \(m_2g\).</p>
+  <p>Αν δεις τα δύο σώματα ως <b>ένα σύστημα</b>, η τάση είναι εσωτερική δύναμη και απαλείφεται. Η «κινητήρια» δύναμη είναι \((m_2-m_1)g\) και η αδράνεια \((m_1+m_2)\), οπότε η \(a\) βγαίνει αμέσως. Ο Atwood (1784) χρησιμοποίησε τη διάταξη για να μετρήσει το \(g\) με μικρή, εύκολα μετρήσιμη επιτάχυνση.</p>
+
+  <div class="bench">
+    <div class="bench-head"><h4>Μηχανή Atwood <small>· δυνάμεις σε κάθε σώμα</small></h4></div>
+    <div class="bench-body">
+      <canvas id="cA" height="280" aria-label="Μηχανή Atwood με δύο μάζες"></canvas>
+      <div class="controls">
+        <div class="ctl"><label for="sA1"><span>m₁ (αριστερά) </span><output id="oA1"></output></label><input id="sA1" type="range" min="0.5" max="10" step="0.5" value="3"></div>
+        <div class="ctl"><label for="sA2"><span>m₂ (δεξιά) </span><output id="oA2"></output></label><input id="sA2" type="range" min="0.5" max="10" step="0.5" value="5"></div>
+      </div>
+      <div class="btns"><button type="button" class="primary" id="bAgo">Άφησε</button><button type="button" id="bAreset">Επαναφορά</button></div>
+      <div class="readout">
+        <div class="ro hi"><span>a</span><b id="rAa"></b></div>
+        <div class="ro hi"><span>T</span><b id="rAT"></b></div>
+        <div class="ro"><span>m₁g, m₂g</span><b id="rAw"></b></div>
+        <div class="ro"><span>v</span><b id="rAv"></b></div>
+      </div>
+      <p class="hint">Τα βέλη T είναι πάντα ίσα στα δύο σώματα, ενώ τα βάρη διαφέρουν. Η διαφορά τους δίνει την ΣF κάθε σώματος.</p>
+    </div>
+  </div>
+
+  <h3 id="drag">Δύναμη που εξαρτάται από την ταχύτητα: οριακή ταχύτητα</h3>
+  <p>Σώμα πέφτει από την ηρεμία μέσα σε ρευστό με γραμμική αντίσταση. Με θετικό άξονα προς τα κάτω:</p>
+  <div class="mj">\[m\frac{dv}{dt}=mg-bv\;\Rightarrow\;\int_0^v\frac{dv'}{g-\frac bm v'}=\int_0^t dt'\;\Rightarrow\; v(t)=v_t\left(1-e^{-t/\tau}\right),\quad v_t=\frac{mg}{b},\ \ \tau=\frac mb\]</div>
+  <p>Η ταχύτητα πλησιάζει ασυμπτωτικά την <b>οριακή</b> \(v_t\), όπου η αντίσταση ισούται με το βάρος και \(\sum F=0\). Μετά από \(3\tau\) έχει φτάσει στο 95% της \(v_t\). Με τετραγωνική αντίσταση \(D=cv^2\):</p>
+  <div class="mj">\[v_t=\sqrt{\frac{mg}{c}},\qquad v(t)=v_t\tanh\!\left(\frac{g\,t}{v_t}\right)\]</div>
+  <p>Ένας αλεξιπτωτιστής σε ελεύθερη πτώση φτάνει περίπου τα 55 m/s, και με ανοιχτό αλεξίπτωτο περίπου τα 5 m/s. Εδώ φαίνεται γιατί στον αέρα τα βαρύτερα σώματα πέφτουν πιο γρήγορα: η \(v_t\) αυξάνεται με τη μάζα.</p>
+
+  <div class="bench">
+    <div class="bench-head"><h4>Πτώση με αντίσταση <small>· η ταχύτητα «κορεσμού»</small></h4></div>
+    <div class="bench-body">
+      <canvas id="cD" height="210" aria-label="Σώμα που πέφτει με αντίσταση ρευστού"></canvas>
+      <canvas id="gD" height="140" aria-label="Γράφημα ταχύτητας-χρόνου με την οριακή ταχύτητα"></canvas>
+      <div class="btns seg" role="group" aria-label="Μοντέλο αντίστασης">
+        <button type="button" id="bDlin" aria-pressed="true">Γραμμική D = bv</button>
+        <button type="button" id="bDquad" aria-pressed="false">Τετραγωνική D = cv²</button>
+      </div>
+      <div class="controls">
+        <div class="ctl"><label for="sDm"><span>Μάζα m </span><output id="oDm"></output></label><input id="sDm" type="range" min="0.5" max="10" step="0.5" value="2"></div>
+        <div class="ctl"><label for="sDk" id="lDk"><span>Συντελεστής b </span><output id="oDk"></output></label><input id="sDk" type="range" min="1" max="20" step="0.5" value="4"></div>
+      </div>
+      <div class="btns"><button type="button" class="primary" id="bDgo">Άφησε</button><button type="button" id="bDreset">Επαναφορά</button></div>
+      <div class="readout">
+        <div class="ro hi"><span>v</span><b id="rDv"></b></div>
+        <div class="ro"><span>D / W</span><b id="rDD"></b></div>
+        <div class="ro"><span>a</span><b id="rDa"></b></div>
+        <div class="ro"><span>v<sub>t</sub></span><b id="rDvt"></b></div>
+      </div>
+      <p class="hint">Η συνεχής καμπύλη είναι αριθμητική ολοκλήρωση του 2ου νόμου, και η διακεκομμένη είναι η οριακή ταχύτητα. Διπλασίασε τη μάζα και δες πόσο αλλάζει η v<sub>t</sub> σε κάθε μοντέλο.</p>
+    </div>
+  </div>
+
+  <h3>Ομαλή κυκλική κίνηση</h3>
+  <p>Σε κυκλική τροχιά ακτίνας \(r\) με σταθερό μέτρο ταχύτητας, η επιτάχυνση είναι \(v^2/r\) με φορά προς το κέντρο. Ο 2ος νόμος στην ακτινική διεύθυνση δίνει:</p>
+  <div class="mj">\[\sum F_r=m\frac{v^2}{r}=m\omega^2r\]</div>
+  <p>Η «κεντρομόλος δύναμη» <b>δεν είναι νέα δύναμη</b>. Είναι η συνισταμένη των πραγματικών δυνάμεων (τριβή, τάση, \(N\), βαρύτητα) κατά τη διεύθυνση προς το κέντρο. Για αυτοκίνητο σε οριζόντια στροφή, η κεντρομόλος προέρχεται από τη στατική τριβή στα ελαστικά:</p>
+  <div class="mj">\[f_s=m\frac{v^2}{r}\le\mu_s mg\quad\Rightarrow\quad v_{\max}=\sqrt{\mu_s g r}\]</div>
+  <p>Για \(r=100\) m και \(\mu_s=0.7\) βγαίνει \(v_{\max}=26.2\) m/s, δηλαδή περίπου 94 km/h, ανεξάρτητα από τη μάζα του οχήματος.</p>
+
+  <h3 id="nonin">Μη αδρανειακά συστήματα και ψευδοδυνάμεις</h3>
+  <p>Σε σύστημα που έχει επιτάχυνση \(\vec a_0\) ως προς ένα αδρανειακό, ισχύει \(\vec a\,'=\vec a-\vec a_0\). Πολλαπλασιάζοντας με \(m\):</p>
+  <div class="mj">\[m\vec a\,'=\sum\vec F+\left(-m\vec a_0\right)\]</div>
+  <p>Ο όρος \(-m\vec a_0\) είναι <b>ψευδοδύναμη</b> (ή δύναμη αδράνειας): δεν την ασκεί κανένα σώμα και δεν έχει ζεύγος δράσης–αντίδρασης. Παραδείγματα: η φαινόμενη αύξηση του βάρους σε ανελκυστήρα που επιταχύνεται προς τα πάνω, \(N=m(g+a_0)\), και η φυγόκεντρος \(m\omega^2r\) σε περιστρεφόμενο σύστημα.</p>
+  <div class="box myth"><p>«Η φυγόκεντρος δύναμη πετάει το αυτοκίνητο έξω από τη στροφή.» Στο αδρανειακό σύστημα δεν υπάρχει φυγόκεντρος. Το αυτοκίνητο απλώς τείνει να συνεχίσει ευθύγραμμα (1ος νόμος), και η τριβή δεν φτάνει για να δώσει την κεντρομόλο \(mv^2/r\) που χρειάζεται.</p></div>
+  <label class="learned"><input type="checkbox" data-learn="forces"> Κατάλαβα την ενότητα 3</label>
+</section>
+
+<!-- 4. LAW 3 -->
+<section class="law" id="law3">
+  <div class="law-head"><span class="law-num">4</span><h2>3ος νόμος: αλληλεπιδράσεις και συστήματα σωμάτων</h2></div>
+  <p class="statement">Όταν ένα σώμα Α ασκεί δύναμη σε ένα σώμα Β, τότε και το Β ασκεί στο Α δύναμη ίσου μέτρου και αντίθετης φοράς.</p>
+  <div class="mj">\[\vec F_{A\to B}=-\vec F_{B\to A}\]</div>
+  <p>Οι δυνάμεις εμφανίζονται πάντα <b>σε ζευγάρια</b>, ταυτόχρονα και του ίδιου είδους. Ασκούνται σε <b>διαφορετικά σώματα</b>, γι' αυτό δεν αλληλοαναιρούνται ποτέ στο ίδιο διάγραμμα ελεύθερου σώματος. Στην «ισχυρή» του μορφή, ο νόμος απαιτεί επιπλέον οι δύο δυνάμεις να βρίσκονται πάνω στην ευθεία που ενώνει τα σώματα (κεντρικές δυνάμεις). Αυτή η μορφή χρειάζεται για τη διατήρηση της στροφορμής.</p>
+
+  <h3>Εσωτερικές δυνάμεις και κέντρο μάζας</h3>
+  <p>Για ένα σύστημα \(N\) σωματιδίων, γράφεις τον 2ο νόμο για καθένα και τους προσθέτεις. Κάθε εσωτερική δύναμη \(\vec F_{ij}\) εμφανίζεται μαζί με την \(\vec F_{ji}=-\vec F_{ij}\), οπότε το άθροισμά τους μηδενίζεται:</p>
+  <div class="mj">\[\sum_i m_i\vec a_i=\sum_i\vec F_i^{\,\text{εξ}}+\underbrace{\sum_i\sum_{j\ne i}\vec F_{ij}}_{=\,0}\quad\Longrightarrow\quad \frac{d\vec P}{dt}=\sum\vec F_{\text{εξ}},\qquad M\vec a_{\text{ΚΜ}}=\sum\vec F_{\text{εξ}}\]</div>
+  <p>με \(\vec P=\sum m_i\vec v_i=M\vec v_{\text{ΚΜ}}\) και \(\vec r_{\text{ΚΜ}}=\frac1M\sum m_i\vec r_i\). Δύο συνέπειες:</p>
+  <ul>
+    <li>Το κέντρο μάζας κινείται σαν υλικό σημείο μάζας \(M\) στο οποίο ασκούνται <b>μόνο οι εξωτερικές δυνάμεις</b>. Οι εσωτερικές δυνάμεις δεν μπορούν να το μετακινήσουν.</li>
+    <li>Αν \(\sum\vec F_{\text{εξ}}=0\), η ολική ορμή <b>διατηρείται</b>.</li>
+  </ul>
+
+  <div class="bench">
+    <div class="bench-head"><h4>Δύο πατινέρ σπρώχνονται <small>· ίσες δυνάμεις, ακίνητο κέντρο μάζας</small></h4></div>
+    <div class="bench-body">
+      <canvas id="c3" height="200" aria-label="Δύο πατινέρ που σπρώχνονται μεταξύ τους"></canvas>
+      <div class="controls">
+        <div class="ctl"><label for="s3a"><span>Μάζα Α (αριστερά) </span><output id="o3a"></output></label><input id="s3a" type="range" min="20" max="120" step="5" value="50"></div>
+        <div class="ctl"><label for="s3b"><span>Μάζα Β (δεξιά) </span><output id="o3b"></output></label><input id="s3b" type="range" min="20" max="120" step="5" value="100"></div>
+        <div class="ctl"><label for="s3F"><span>Δύναμη ώθησης </span><output id="o3F"></output></label><input id="s3F" type="range" min="50" max="400" step="10" value="200"></div>
+      </div>
+      <div class="btns"><button type="button" class="primary" id="b3push">Σπρώξτε!</button><button type="button" id="b3reset">Από την αρχή</button></div>
+      <div class="readout">
+        <div class="ro"><span>v_A</span><b id="r3a"></b></div>
+        <div class="ro"><span>v_B</span><b id="r3b"></b></div>
+        <div class="ro hi"><span>P = p_A + p_B</span><b id="r3p"></b></div>
+        <div class="ro"><span>x_ΚΜ</span><b id="r3cm"></b></div>
+      </div>
+      <p class="hint">Η ώθηση κρατάει 0.5 s. Οι δυνάμεις είναι εσωτερικές στο σύστημα Α+Β, οπότε η ολική ορμή μένει μηδέν και το σημάδι ΚΜ δεν μετακινείται, όσο κι αν απομακρύνονται τα πατινέρ.</p>
+    </div>
+  </div>
+
+  <h3>Ώθηση</h3>
+  <p>Ολοκληρώνοντας τον 2ο νόμο στον χρόνο:</p>
+  <div class="mj">\[\vec J=\int_{t_1}^{t_2}\vec F\,dt=\Delta\vec p,\qquad \bar F=\frac{\Delta p}{\Delta t}\]</div>
+  <p>Για δεδομένη μεταβολή ορμής, όσο μεγαλύτερη είναι η διάρκεια της κρούσης, τόσο μικρότερη είναι η μέση δύναμη. Σε αυτό βασίζονται οι αερόσακοι και οι ζώνες παραμόρφωσης των αυτοκινήτων.</p>
+
+  <h3>Σώματα μεταβλητής μάζας: ο πύραυλος</h3>
+  <p>Τη στιγμή \(t\) ο πύραυλος έχει μάζα \(m\) και ταχύτητα \(v\). Στο \(dt\) εκτοξεύει μάζα \(|dm|\) με ταχύτητα \(u\) <b>ως προς τον πύραυλο</b>, προς τα πίσω. Για το κλειστό σύστημα «πύραυλος + καυσαέρια», η μεταβολή της ορμής ισούται με την ώθηση της εξωτερικής δύναμης (βαρύτητα):</p>
+  <div class="mj">\[m\frac{dv}{dt}=\underbrace{u\,\dot m}_{\text{ώση }F_{\text{ωσ}}}-\,mg,\qquad \dot m=-\frac{dm}{dt}>0\]</div>
+  <p>Χωρίς βαρύτητα, η ολοκλήρωση δίνει την εξίσωση του Τσιολκόφσκι. Με βαρύτητα και σταθερό ρυθμό καύσης για χρόνο \(t_b\):</p>
+  <div class="mj">\[\Delta v=u\ln\frac{m_0}{m_f}\qquad\qquad \Delta v=u\ln\frac{m_0}{m_f}-g\,t_b\]</div>
+  <div class="box remember"><p>Το \(\vec F=d(m\vec v)/dt\) <b>δεν</b> εφαρμόζεται απευθείας σε σώμα που χάνει μάζα. Ο 2ος νόμος ισχύει για κλειστό σύστημα, γι' αυτό η απόδειξη συμπεριλαμβάνει και τα καυσαέρια. Επειδή η μάζα μειώνεται ενώ η ώση μένει σταθερή, η επιτάχυνση του πυραύλου <b>αυξάνεται</b> κατά την καύση.</p></div>
+
+  <div class="bench">
+    <div class="bench-head"><h4>Πύραυλος μεταβλητής μάζας <small>· η καύση ελαφραίνει τον πύραυλο</small></h4></div>
+    <div class="bench-body">
+      <canvas id="c3b" height="260" aria-label="Πύραυλος που απογειώνεται"></canvas>
+      <canvas id="g3b" height="130" aria-label="Γράφημα επιτάχυνσης-χρόνου"></canvas>
+      <div class="controls">
+        <div class="ctl"><label for="s3T"><span>Ώση u·ṁ </span><output id="o3T"></output></label><input id="s3T" type="range" min="0" max="40" step="1" value="20"></div>
+        <div class="ctl"><label for="s3m"><span>Αρχική μάζα m₀ </span><output id="o3m"></output></label><input id="s3m" type="range" min="0.5" max="3" step="0.1" value="1.5"></div>
+        <div class="ctl"><label for="s3f"><span>Ποσοστό καυσίμου </span><output id="o3f"></output></label><input id="s3f" type="range" min="0.1" max="0.6" step="0.05" value="0.3"></div>
+      </div>
+      <div class="btns"><button type="button" class="primary" id="b3launch">Εκτόξευση</button><button type="button" id="b3land">Επαναφορά</button></div>
+      <div class="readout">
+        <div class="ro"><span>m(t)</span><b id="r3m"></b></div>
+        <div class="ro hi"><span>a = F_ωσ/m − g</span><b id="r3acc"></b></div>
+        <div class="ro"><span>u = F_ωσ/ṁ</span><b id="r3u"></b></div>
+        <div class="ro"><span>Δv θεωρ. (Τσιολκόφσκι − g·t_b)</span><b id="r3dv"></b></div>
+        <div class="ro"><span>Ύψος, ταχύτητα</span><b id="r3h"></b></div>
+      </div>
+      <p class="hint" id="h3b">Η καύση διαρκεί 3 s με σταθερό ṁ. Δες στο γράφημα την επιτάχυνση να αυξάνεται όσο καίγεται το καύσιμο και να πέφτει στο −g όταν σβήνει ο κινητήρας. Δοκίμασε ώση λίγο μικρότερη από m₀g: ο πύραυλος σηκώνεται αργότερα, όταν ελαφρύνει αρκετά.</p>
+    </div>
+  </div>
+
+  <div class="box myth"><p>«Αφού οι δυνάμεις είναι ίσες και αντίθετες, πώς κινείται ποτέ κάτι;» Γιατί ασκούνται σε <b>διαφορετικά</b> σώματα. Το άλογο τραβάει το κάρο όσο και το κάρο το άλογο. Για να δεις αν κινείται το κάρο, κοιτάς <b>μόνο</b> τις δυνάμεις πάνω στο κάρο: την έλξη του αλόγου και την τριβή του δρόμου. Το σύστημα άλογο+κάρο επιταχύνεται γιατί το έδαφος σπρώχνει τις οπλές του αλόγου προς τα εμπρός (στατική τριβή), που είναι εξωτερική δύναμη.</p></div>
+  <div class="box remember"><p>Το \(N\) και το \(W\) ενός βιβλίου στο τραπέζι <b>δεν</b> είναι ζεύγος δράσης–αντίδρασης, παρότι είναι ίσα και αντίθετα. Ασκούνται στο ίδιο σώμα και είναι διαφορετικού είδους. Το ζευγάρι του βάρους είναι η βαρυτική έλξη του βιβλίου στη Γη. Το ζευγάρι της \(N\) είναι η δύναμη επαφής του βιβλίου στο τραπέζι.</p></div>
+  <label class="learned"><input type="checkbox" data-learn="law3"> Κατάλαβα την ενότητα 4</label>
+</section>
+
+<!-- EXERCISES -->
+<section class="law" id="ask">
+  <div class="law-head"><h2>Ασκήσεις</h2></div>
+  <p class="hint">Πάρε \(g=9.81\) m/s². Οι απαντήσεις ελέγχονται με ανοχή 1%, και για δεκαδικούς γράφεις τελεία ή κόμμα. Δυσκολία: ★ βασική, ★★ τυπική εξετάσεων, ★★★ απαιτητική.</p>
+
+  <div class="ex">
+    <h3>1. Σύρσιμο υπό γωνία <span class="tag">Ενότητα 1–2</span><span class="lvl">★★</span></h3>
+    <p>Κιβώτιο 40 kg σύρεται σε οριζόντιο δάπεδο με σχοινί που σχηματίζει γωνία 30° με την οριζόντια. Κινείται με σταθερή ταχύτητα και \(\mu_k=0.30\). Βρες την τάση του σχοινιού και την κάθετη αντίδραση.</p>
+    <div class="answers">
+      <label>T [N]<input type="text" inputmode="decimal" data-ans="115.86" data-tol="0.01"></label>
+      <label>N [N]<input type="text" inputmode="decimal" data-ans="334.47" data-tol="0.01"></label>
+    </div>
+    <div class="btns"><button type="button" class="primary check">Έλεγχος</button></div><div class="feedback"></div>
+    <details><summary>Λύση</summary><ol>
+      <li>Σταθερή ταχύτητα σημαίνει \(\sum\vec F=0\) (1ος νόμος).</li>
+      <li>Κατακόρυφα: \(N+T\sin30^\circ-mg=0\Rightarrow N=mg-T\sin30^\circ\). Η κάθετη <b>δεν</b> είναι \(mg\), γιατί το σχοινί «σηκώνει» λίγο το κιβώτιο.</li>
+      <li>Οριζόντια: \(T\cos30^\circ=\mu_kN=\mu_k(mg-T\sin30^\circ)\).</li>
+      <li>\(T=\dfrac{\mu_k mg}{\cos30^\circ+\mu_k\sin30^\circ}=\dfrac{117.7}{1.016}=115.9\) N και \(N=392.4-57.9=334.5\) N.</li>
+    </ol></details>
+  </div>
+
+  <div class="ex">
+    <h3>2. Χρονικά μεταβαλλόμενη δύναμη <span class="tag">Ενότητα 2</span><span class="lvl">★★</span></h3>
+    <p>Σε σώμα 2 kg, αρχικά ακίνητο σε λείο οριζόντιο επίπεδο, ασκείται οριζόντια δύναμη \(F(t)=6t\) (F σε N, t σε s). Βρες την ταχύτητα και τη μετατόπιση τη στιγμή \(t=3\) s.</p>
+    <div class="answers">
+      <label>v(3) [m/s]<input type="text" inputmode="decimal" data-ans="13.5" data-tol="0.01"></label>
+      <label>x(3) [m]<input type="text" inputmode="decimal" data-ans="13.5" data-tol="0.01"></label>
+    </div>
+    <div class="btns"><button type="button" class="primary check">Έλεγχος</button></div><div class="feedback"></div>
+    <details><summary>Λύση</summary><ol>
+      <li>\(a=F/m=3t\). Δεν είναι σταθερή, άρα δεν ισχύουν οι τύποι της ομαλά επιταχυνόμενης κίνησης.</li>
+      <li>\(v=\int_0^t3t'\,dt'=1.5t^2\Rightarrow v(3)=13.5\) m/s.</li>
+      <li>\(x=\int_0^t1.5t'^2dt'=0.5t^3\Rightarrow x(3)=13.5\) m.</li>
+    </ol></details>
+  </div>
+
+  <div class="ex">
+    <h3>3. Ολίσθηση σε κεκλιμένο <span class="tag">Ενότητα 3</span><span class="lvl">★</span></h3>
+    <p>Κιβώτιο αφήνεται από την ηρεμία σε κεκλιμένο επίπεδο κλίσης 30° με \(\mu_k=0.20\). Βρες την επιτάχυνσή του και την ταχύτητά του αφού διανύσει 2 m.</p>
+    <div class="answers">
+      <label>a [m/s²]<input type="text" inputmode="decimal" data-ans="3.206" data-tol="0.01"></label>
+      <label>v [m/s]<input type="text" inputmode="decimal" data-ans="3.581" data-tol="0.01"></label>
+    </div>
+    <div class="btns"><button type="button" class="primary check">Έλεγχος</button></div><div class="feedback"></div>
+    <details><summary>Λύση</summary><ol>
+      <li>\(N=mg\cos\theta\) και \(f_k=\mu_kmg\cos\theta\).</li>
+      <li>\(a=g(\sin\theta-\mu_k\cos\theta)=9.81(0.5-0.1732)=3.206\) m/s².</li>
+      <li>\(v=\sqrt{2ad}=\sqrt{12.82}=3.58\) m/s. Δοκίμασέ το στο εργαστήριο του κεκλιμένου.</li>
+    </ol></details>
+  </div>
+
+  <div class="ex">
+    <h3>4. Κρίσιμη γωνία <span class="tag">Ενότητα 3</span><span class="lvl">★★</span></h3>
+    <p>Για ένα κιβώτιο σε σανίδα, \(\mu_s=0.45\) και \(\mu_k=0.30\). (α) Σε ποια γωνία αρχίζει να ολισθαίνει; (β) Αν η σανίδα έχει κλίση 30°, με πόση επιτάχυνση κατεβαίνει;</p>
+    <div class="answers">
+      <label>θ<sub>c</sub> [°]<input type="text" inputmode="decimal" data-ans="24.23" data-tol="0.01"></label>
+      <label>a στις 30° [m/s²]<input type="text" inputmode="decimal" data-ans="2.356" data-tol="0.01"></label>
+    </div>
+    <div class="btns"><button type="button" class="primary check">Έλεγχος</button></div><div class="feedback"></div>
+    <details><summary>Λύση</summary><ol>
+      <li>Στο όριο: \(mg\sin\theta_c=\mu_smg\cos\theta_c\Rightarrow\theta_c=\arctan0.45=24.2^\circ\).</li>
+      <li>Στις 30° ολισθαίνει, οπότε ισχύει η <b>κινητική</b> τριβή: \(a=9.81(0.5-0.30\cdot0.866)=2.36\) m/s².</li>
+    </ol></details>
+  </div>
+
+  <div class="ex">
+    <h3>5. Μηχανή Atwood <span class="tag">Ενότητα 3</span><span class="lvl">★</span></h3>
+    <p>Μάζες 3 kg και 5 kg κρέμονται από αβαρές νήμα που περνά από αβαρή τροχαλία χωρίς τριβές. Βρες την επιτάχυνση και την τάση του νήματος.</p>
+    <div class="answers">
+      <label>a [m/s²]<input type="text" inputmode="decimal" data-ans="2.4525" data-tol="0.01"></label>
+      <label>T [N]<input type="text" inputmode="decimal" data-ans="36.79" data-tol="0.01"></label>
+    </div>
+    <div class="btns"><button type="button" class="primary check">Έλεγχος</button></div><div class="feedback"></div>
+    <details><summary>Λύση</summary><ol>
+      <li>\(a=\dfrac{m_2-m_1}{m_1+m_2}g=\dfrac{2}{8}\cdot9.81=2.45\) m/s².</li>
+      <li>\(T=m_1(g+a)=3\cdot12.26=36.8\) N. Έλεγχος: \(m_1g=29.4<T<m_2g=49.1\) ✓.</li>
+    </ol></details>
+  </div>
+
+  <div class="ex">
+    <h3>6. Σώμα σε τραπέζι και κρεμασμένο βαρίδι <span class="tag">Ενότητα 3</span><span class="lvl">★★</span></h3>
+    <p>Κιβώτιο \(m_1=4\) kg σε οριζόντιο τραπέζι με \(\mu_k=0.25\) συνδέεται, μέσω νήματος και τροχαλίας στην άκρη του τραπεζιού, με βαρίδι \(m_2=2\) kg που κρέμεται. Βρες την επιτάχυνση και την τάση.</p>
+    <div class="answers">
+      <label>a [m/s²]<input type="text" inputmode="decimal" data-ans="1.635" data-tol="0.01"></label>
+      <label>T [N]<input type="text" inputmode="decimal" data-ans="16.35" data-tol="0.01"></label>
+    </div>
+    <div class="btns"><button type="button" class="primary check">Έλεγχος</button></div><div class="feedback"></div>
+    <details><summary>Λύση</summary><ol>
+      <li>Κιβώτιο: \(T-\mu_km_1g=m_1a\). Βαρίδι: \(m_2g-T=m_2a\).</li>
+      <li>Πρόσθεση: \(a=\dfrac{m_2g-\mu_km_1g}{m_1+m_2}=\dfrac{19.62-9.81}{6}=1.635\) m/s².</li>
+      <li>\(T=m_2(g-a)=2\cdot8.175=16.35\) N.</li>
+    </ol></details>
+  </div>
+
+  <div class="ex">
+    <h3>7. Ζυγαριά σε ανελκυστήρα <span class="tag">Ενότητα 3</span><span class="lvl">★</span></h3>
+    <p>Άνθρωπος 70 kg στέκεται σε ζυγαριά μέσα σε ανελκυστήρα που επιταχύνεται προς τα πάνω με 1.5 m/s². Πόση δύναμη δείχνει η ζυγαριά, και πόσα «κιλά» γράφει αν είναι βαθμονομημένη για \(g=9.81\);</p>
+    <div class="answers">
+      <label>N [N]<input type="text" inputmode="decimal" data-ans="791.7" data-tol="0.01"></label>
+      <label>Ένδειξη [kg]<input type="text" inputmode="decimal" data-ans="80.7" data-tol="0.01"></label>
+    </div>
+    <div class="btns"><button type="button" class="primary check">Έλεγχος</button></div><div class="feedback"></div>
+    <details><summary>Λύση</summary><ol>
+      <li>Αδρανειακό σύστημα: \(N-mg=ma\Rightarrow N=m(g+a)=791.7\) N.</li>
+      <li>Μέσα στον ανελκυστήρα (μη αδρανειακό) ο άνθρωπος ισορροπεί υπό \(N\), \(mg\) και την ψευδοδύναμη \(ma\) προς τα κάτω. Το αποτέλεσμα είναι το ίδιο.</li>
+      <li>Ένδειξη \(N/g=80.7\) kg. Η μάζα δεν άλλαξε, άλλαξε η \(N\).</li>
+    </ol></details>
+  </div>
+
+  <div class="ex">
+    <h3>8. Οριακή ταχύτητα <span class="tag">Ενότητα 3</span><span class="lvl">★★★</span></h3>
+    <p>Σφαίρα 2 kg αφήνεται από την ηρεμία σε ρευστό με γραμμική αντίσταση \(D=bv\), \(b=4\) kg/s. Αγνόησε την άνωση. Βρες την οριακή ταχύτητα, τη χαρακτηριστική σταθερά χρόνου \(\tau\), και τον χρόνο που χρειάζεται για να φτάσει στο 95% της οριακής ταχύτητας.</p>
+    <div class="answers">
+      <label>v<sub>t</sub> [m/s]<input type="text" inputmode="decimal" data-ans="4.905" data-tol="0.01"></label>
+      <label>τ [s]<input type="text" inputmode="decimal" data-ans="0.5" data-tol="0.01"></label>
+      <label>t<sub>95%</sub> [s]<input type="text" inputmode="decimal" data-ans="1.498" data-tol="0.01"></label>
+    </div>
+    <div class="btns"><button type="button" class="primary check">Έλεγχος</button></div><div class="feedback"></div>
+    <details><summary>Λύση</summary><ol>
+      <li>\(v_t=mg/b=19.62/4=4.905\) m/s και \(\tau=m/b=0.5\) s.</li>
+      <li>\(0.95=1-e^{-t/\tau}\Rightarrow t=\tau\ln20=0.5\cdot2.996=1.50\) s, δηλαδή περίπου \(3\tau\).</li>
+    </ol></details>
+  </div>
+
+  <div class="ex">
+    <h3>9. Στροφή χωρίς κλίση <span class="tag">Ενότητα 3</span><span class="lvl">★★</span></h3>
+    <p>Αυτοκίνητο παίρνει οριζόντια στροφή ακτίνας 50 m. Ο συντελεστής στατικής τριβής ελαστικών–οδοστρώματος είναι 0.8. Ποια είναι η μέγιστη ταχύτητα χωρίς ολίσθηση;</p>
+    <div class="answers">
+      <label>v<sub>max</sub> [m/s]<input type="text" inputmode="decimal" data-ans="19.81" data-tol="0.01"></label>
+      <label>v<sub>max</sub> [km/h]<input type="text" inputmode="decimal" data-ans="71.31" data-tol="0.01"></label>
+    </div>
+    <div class="btns"><button type="button" class="primary check">Έλεγχος</button></div><div class="feedback"></div>
+    <details><summary>Λύση</summary><ol>
+      <li>Η κεντρομόλος δίνεται από τη στατική τριβή: \(mv^2/r\le\mu_smg\).</li>
+      <li>\(v_{\max}=\sqrt{\mu_sgr}=\sqrt{0.8\cdot9.81\cdot50}=19.8\) m/s \(=71.3\) km/h. Η τριβή είναι <b>στατική</b>, γιατί το ελαστικό δεν ολισθαίνει ακτινικά.</li>
+    </ol></details>
+  </div>
+
+  <div class="ex">
+    <h3>10. Κρούση μπάλας <span class="tag">Ενότητα 4</span><span class="lvl">★</span></h3>
+    <p>Μπάλα του μπέιζμπολ 0.15 kg έρχεται με 40 m/s και φεύγει από το ρόπαλο με 30 m/s στην αντίθετη κατεύθυνση. Η επαφή διαρκεί 2 ms. Βρες το μέτρο της ώθησης και τη μέση δύναμη.</p>
+    <div class="answers">
+      <label>J [N·s]<input type="text" inputmode="decimal" data-ans="10.5" data-tol="0.01"></label>
+      <label>F̄ [N]<input type="text" inputmode="decimal" data-ans="5250" data-tol="0.01"></label>
+    </div>
+    <div class="btns"><button type="button" class="primary check">Έλεγχος</button></div><div class="feedback"></div>
+    <details><summary>Λύση</summary><ol>
+      <li>Με θετική τη φορά εξόδου: \(\Delta p=0.15\,(30-(-40))=10.5\) N·s. Προσοχή στα πρόσημα: οι ταχύτητες <b>προστίθενται</b>.</li>
+      <li>\(\bar F=\Delta p/\Delta t=10.5/0.002=5250\) N, περίπου 3500 φορές το βάρος της μπάλας.</li>
+    </ol></details>
+  </div>
+
+  <div class="ex">
+    <h3>11. Πατινέρ <span class="tag">Ενότητα 4</span><span class="lvl">★</span></h3>
+    <p>Η Άννα (60 kg) και ο Βασίλης (90 kg) στέκονται ακίνητοι στον πάγο και σπρώχνονται. Η Άννα φεύγει με 1.5 m/s. Με πόση ταχύτητα φεύγει ο Βασίλης; Αν η δύναμη ήταν σταθερή 150 N, πόσο κράτησε η ώθηση;</p>
+    <div class="answers">
+      <label>v Βασίλη [m/s]<input type="text" inputmode="decimal" data-ans="1" data-tol="0.01"></label>
+      <label>Δt [s]<input type="text" inputmode="decimal" data-ans="0.6" data-tol="0.01"></label>
+    </div>
+    <div class="btns"><button type="button" class="primary check">Έλεγχος</button></div><div class="feedback"></div>
+    <details><summary>Λύση</summary><ol>
+      <li>Οι δυνάμεις είναι εσωτερικές, άρα \(P=0\) πριν και μετά: \(60\cdot1.5=90\,v_B\Rightarrow v_B=1\) m/s, αντίθετα.</li>
+      <li>\(F\Delta t=\Delta p\Rightarrow\Delta t=90/150=0.6\) s, ίδιος χρόνος και για τους δύο, όπως απαιτεί ο 3ος νόμος.</li>
+    </ol></details>
+  </div>
+
+  <div class="ex">
+    <h3>12. Πύραυλος <span class="tag">Ενότητα 4</span><span class="lvl">★★★</span></h3>
+    <p>Πύραυλος αρχικής μάζας 10 000 kg, από τα οποία 6 000 kg είναι καύσιμο, εκτοξεύει καυσαέρια με \(u=2500\) m/s ως προς αυτόν και ρυθμό \(\dot m=50\) kg/s. (α) Πόσο είναι το \(\Delta v\) αν αγνοήσουμε τη βαρύτητα; (β) Πόση είναι η αρχική επιτάχυνση σε κατακόρυφη εκτόξευση από τη Γη;</p>
+    <div class="answers">
+      <label>Δv [m/s]<input type="text" inputmode="decimal" data-ans="2290.7" data-tol="0.01"></label>
+      <label>a₀ [m/s²]<input type="text" inputmode="decimal" data-ans="2.69" data-tol="0.01"></label>
+    </div>
+    <div class="btns"><button type="button" class="primary check">Έλεγχος</button></div><div class="feedback"></div>
+    <details><summary>Λύση</summary><ol>
+      <li>\(m_f=4000\) kg, άρα \(\Delta v=2500\ln(10000/4000)=2500\cdot0.916=2291\) m/s.</li>
+      <li>Ώση \(u\dot m=125\,000\) N. Τότε \(a_0=F_{\text{ωσ}}/m_0-g=12.5-9.81=2.69\) m/s².</li>
+      <li>Στο τέλος της καύσης (\(t_b=120\) s) η επιτάχυνση έχει γίνει \(125\,000/4000-9.81=21.4\) m/s², οκτώ φορές μεγαλύτερη.</li>
+    </ol></details>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section class="law" id="quiz">
+  <div class="law-head"><h2>Κουίζ κατανόησης</h2><span class="score" id="qScore"></span></div>
+  <div id="quizBox"></div>
+  <div class="btns"><button type="button" id="qReset">Ξανά από την αρχή</button></div>
+</section>
+
+<!-- SHEET -->
+<section class="law" id="sheet">
+  <div class="law-head"><h2>Τυπολόγιο</h2></div>
+  <div class="sheet">
+    <div><h4>Νόμοι</h4><div class="mj">\[\sum\vec F=\frac{d\vec p}{dt}=m\vec a,\qquad \vec F_{A\to B}=-\vec F_{B\to A}\]</div></div>
+    <div><h4>Γαλιλαίος</h4><div class="mj">\[\vec r=\vec r\,'+\vec Vt,\quad \vec v=\vec v\,'+\vec V,\quad \vec a=\vec a\,'\]</div></div>
+    <div><h4>Τριβή</h4><div class="mj">\[f_s\le\mu_sN,\qquad f_k=\mu_kN\]</div></div>
+    <div><h4>Κεκλιμένο</h4><div class="mj">\[N=mg\cos\theta,\ \ a=g(\sin\theta-\mu_k\cos\theta),\ \ \tan\theta_c=\mu_s\]</div></div>
+    <div><h4>Atwood</h4><div class="mj">\[a=\frac{m_2-m_1}{m_1+m_2}g,\qquad T=\frac{2m_1m_2}{m_1+m_2}g\]</div></div>
+    <div><h4>Οριακή ταχύτητα</h4><div class="mj">\[v_t=\frac{mg}{b},\ \ v=v_t(1-e^{-t/\tau}),\ \ \tau=\frac mb;\qquad v_t=\sqrt{\frac{mg}{c}}\]</div></div>
+    <div><h4>Κυκλική κίνηση</h4><div class="mj">\[\sum F_r=\frac{mv^2}{r}=m\omega^2r,\qquad v_{\max}=\sqrt{\mu_sgr}\]</div></div>
+    <div><h4>Μη αδρανειακό σύστημα</h4><div class="mj">\[m\vec a\,'=\sum\vec F-m\vec a_0\]</div></div>
+    <div><h4>Σύστημα σωμάτων</h4><div class="mj">\[M\vec a_{\text{ΚΜ}}=\sum\vec F_{\text{εξ}},\qquad \vec J=\int\vec F\,dt=\Delta\vec p\]</div></div>
+    <div><h4>Πύραυλος</h4><div class="mj">\[m\dot v=u\dot m-mg,\qquad \Delta v=u\ln\frac{m_0}{m_f}-gt_b\]</div></div>
+    <div><h4>Σταθερή επιτάχυνση</h4><div class="mj">\[v=v_0+at,\quad x=v_0t+\tfrac12at^2,\quad v^2=v_0^2+2a\Delta x\]</div></div>
+  </div>
+</section>
+
+<footer>Σημειώσεις για προσωπική μελέτη στο μάθημα Φυσική Ι. Τα animation χρησιμοποιούν αριθμητική ολοκλήρωση του 2ου νόμου με g = 9.81 m/s². Αγνοούν την αντίσταση του αέρα, εκτός από το εργαστήριο της οριακής ταχύτητας. Η πρόοδός σου αποθηκεύεται μόνο σε αυτή τη συσκευή.</footer>
+</main>
+
+<script>
+(() => {
+"use strict";
+const G = 9.81;
+const $ = id => document.getElementById(id);
+const fmt = (x, d = 2) => (Math.abs(x) < 1e-9 ? 0 : x).toFixed(d).replace(".", ",");
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- theme-aware colours ---------- */
+let C = {};
+function readColors(){
+  const s = getComputedStyle(document.documentElement);
+  ["ink","muted","line","accent","f-app","f-fric","f-wt","f-norm","f-other","stage","ground","grid","paper","good","bad"].forEach(k => C[k] = s.getPropertyValue("--" + k).trim());
+}
+readColors();
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { readColors(); scenes.forEach(s => s.draw()); });
+new MutationObserver(() => { readColors(); scenes.forEach(s => s.draw()); }).observe(document.documentElement, { attributes:true, attributeFilter:["data-theme"] });
+
+/* ---------- canvas helper ---------- */
+function setupCanvas(cv){
+  const ctx = cv.getContext("2d");
+  const baseH = +cv.getAttribute("height");
+  const st = { cv, ctx, w: 0, h: baseH };
+  const fit = () => {
+    const dpr = window.devicePixelRatio || 1;
+    st.w = cv.clientWidth || 600;
+    st.h = baseH;
+    cv.style.height = baseH + "px";
+    cv.width = Math.round(st.w * dpr); cv.height = Math.round(baseH * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+  fit();
+  st.fit = fit;
+  return st;
+}
+function arrow(ctx, x1, y1, x2, y2, color, label, lw = 3){
+  const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+  if (len < 2) return;
+  const ux = dx / len, uy = dy / len, hs = Math.min(10, len * 0.5);
+  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = lw; ctx.lineCap = "round";
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hs * 0.8, y2 - uy * hs * 0.8); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - ux * hs - uy * hs * 0.55, y2 - uy * hs + ux * hs * 0.55);
+  ctx.lineTo(x2 - ux * hs + uy * hs * 0.55, y2 - uy * hs - ux * hs * 0.55);
+  ctx.closePath(); ctx.fill();
+  if (label){
+    ctx.font = "600 12px Commissioner, system-ui, sans-serif";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(label, x2 + ux * 12 + (Math.abs(uy) > 0.5 ? 14 : 0), y2 + uy * 12 - (Math.abs(ux) > 0.5 ? 10 : 0));
+  }
+}
+function roundRect(ctx, x, y, w, h, r){ ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, w, h, r) : ctx.rect(x, y, w, h); }
+function text(ctx, s, x, y, color, size = 12, align = "left", weight = 500){
+  ctx.fillStyle = color; ctx.font = `${weight} ${size}px Commissioner, system-ui, sans-serif`;
+  ctx.textAlign = align; ctx.textBaseline = "middle"; ctx.fillText(s, x, y);
+}
+/* small time-series plot */
+function plot(st, series, opts){
+  const { ctx, w, h } = st; const pad = { l: 38, r: 10, t: 12, b: 22 };
+  ctx.clearRect(0, 0, w, h);
+  const pw = w - pad.l - pad.r, ph = h - pad.t - pad.b;
+  const tMax = opts.tMax, all = series.flatMap(s => s.pts.map(p => p[1]));
+  const yMax = Math.max(opts.yMin || 1, ...all) * 1.1;
+  const yLo = opts.neg ? Math.min(0, ...all) * 1.1 : 0;
+  const Yof = y => pad.t + ph * (yMax - y) / (yMax - yLo);
+  ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++){ const y = pad.t + ph * i / 4; ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(w - pad.r, y); ctx.stroke(); }
+  ctx.strokeStyle = C.muted; ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + ph); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pad.l, Yof(0)); ctx.lineTo(w - pad.r, Yof(0)); ctx.stroke();
+  text(ctx, fmt(yMax, 1), pad.l - 4, pad.t + 2, C.muted, 10, "right");
+  text(ctx, "0", pad.l - 4, Yof(0), C.muted, 10, "right");
+  if (yLo < 0) text(ctx, fmt(yLo, 1), pad.l - 4, pad.t + ph, C.muted, 10, "right");
+  text(ctx, opts.yLabel, pad.l + 6, pad.t + 6, C.muted, 11);
+  text(ctx, "t [s] → " + fmt(tMax, 0), w - pad.r, h - 8, C.muted, 10, "right");
+  series.forEach(s => {
+    if (!s.pts.length) return;
+    ctx.strokeStyle = s.color; ctx.lineWidth = s.dash ? 1.5 : 2; ctx.setLineDash(s.dash ? [6, 4] : []); ctx.beginPath();
+    s.pts.forEach(([t, y], i) => { const X = pad.l + pw * Math.min(t, tMax) / tMax, Y = Yof(y); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); });
+    ctx.stroke(); ctx.setLineDash([]);
+    if (s.label){ const [t, y] = s.pts[s.pts.length - 1]; text(ctx, s.label, Math.min(pad.l + pw * Math.min(t, tMax) / tMax + 6, w - 40), Yof(y) - 8, s.color, 11, "left", 600); }
+  });
+}
+
+/* ---------- animation loop: only scenes on screen run ---------- */
+const scenes = [];
+function addScene(sc){
+  scenes.push(sc); sc.visible = false;
+  new IntersectionObserver(es => es.forEach(e => sc.visible = e.isIntersecting), { threshold: 0.05 }).observe(sc.el);
+  sc.draw();
+}
+let last = performance.now();
+function loop(now){
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  scenes.forEach(sc => { if (sc.visible && sc.running){ sc.step(dt); sc.draw(); } });
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+let resizeT;
+addEventListener("resize", () => { clearTimeout(resizeT); resizeT = setTimeout(() => scenes.forEach(sc => { sc.canvases.forEach(c => c.fit()); sc.draw(); }), 120); });
+const bindRange = (id, outId, fmtFn) => { const el = $(id), o = $(outId); const up = () => o.textContent = fmtFn(+el.value); el.addEventListener("input", up); up(); return el; };
+
+/* ======================= LAW 1: sliding block ======================= */
+{
+  const st = setupCanvas($("c1")), gs = setupCanvas($("g1"));
+  const mu = bindRange("s1mu", "o1mu", v => fmt(v, 2));
+  const v0 = bindRange("s1v", "o1v", v => fmt(v, 1) + " m/s");
+  const s = { x: 0, v: 0, t: 0, hist: [], running: false };
+  const PX = 40; // pixels per metre
+  const sc = { el: $("c1"), canvases: [st, gs], get running(){ return s.running; },
+    step(dt){
+      const decel = +mu.value * G;
+      if (s.v > 0){ s.v = Math.max(0, s.v - decel * dt); }
+      s.x += s.v * dt; s.t += dt;
+      if (!s.hist.length || s.t - s.hist[s.hist.length - 1][0] > 0.05) s.hist.push([s.t, s.v]);
+      if (s.t > 10 || (s.v === 0 && s.t > 0.5 && s.hist.length > 2 && s.hist[s.hist.length - 1][1] === 0 && s.hist[s.hist.length - 2][1] === 0)) s.running = false;
+    },
+    draw(){
+      const { ctx, w, h } = st; ctx.clearRect(0, 0, w, h);
+      const gy = h - 40;
+      // ground with moving ticks (camera follows block)
+      const cam = Math.max(0, s.x * PX - w * 0.35);
+      ctx.fillStyle = C.ground; ctx.fillRect(0, gy, w, 3);
+      ctx.strokeStyle = C.ground; ctx.lineWidth = 1;
+      for (let m = Math.floor(cam / PX); m * PX - cam < w; m++){
+        const X = m * PX - cam; ctx.beginPath(); ctx.moveTo(X, gy + 3); ctx.lineTo(X - 8, gy + 12); ctx.stroke();
+        if (m % 5 === 0) text(ctx, m + " m", X, gy + 24, C.muted, 10, "center");
+      }
+      const bx = s.x * PX - cam + 20, bs = 46;
+      roundRect(ctx, bx, gy - bs, bs, bs, 6); ctx.fillStyle = C.accent; ctx.fill();
+      // forces on block
+      const cx = bx + bs / 2, cy = gy - bs / 2;
+      arrow(ctx, cx, gy - bs, cx, gy - bs - 32, C["f-norm"], "N");
+      arrow(ctx, cx - 10, gy - bs + 4, cx - 10, gy - 2, C["f-wt"], "W", 2.5);
+      if (s.v > 0 && +mu.value > 0) arrow(ctx, bx, gy - 6, bx - 20 - 120 * +mu.value, gy - 6, C["f-fric"], "f");
+      if (s.v > 0) arrow(ctx, bx + bs + 6, cy, bx + bs + 6 + 10 + s.v * 8, cy, C.muted, "v", 2);
+      text(ctx, s.v > 0 ? (+mu.value === 0 ? "ΣF = 0 → σταθερή ταχύτητα" : "Η τριβή επιβραδύνει τον κύβο") : (s.t > 0 ? "Σταμάτησε" : "Πάτα «Σπρώξε»"), 12, 16, C.ink, 13, "left", 600);
+      $("r1v").textContent = fmt(s.v) + " m/s";
+      $("r1x").textContent = fmt(s.x, 1) + " m";
+      $("r1a").textContent = (s.v > 0 ? fmt(-(+mu.value) * G) : "0,00") + " m/s²";
+      plot(gs, [{ pts: s.hist, color: C.accent, label: "v" }], { tMax: 10, yLabel: "v [m/s]", yMin: 8 });
+    } };
+  $("b1push").addEventListener("click", () => { s.x = 0; s.t = 0; s.v = +v0.value; s.hist = [[0, s.v]]; s.running = true; });
+  [mu, v0].forEach(el => el.addEventListener("input", () => sc.draw()));
+  addScene(sc);
+}
+
+/* ======================= LAW 1b: bus braking ======================= */
+{
+  const st = setupCanvas($("c1b"));
+  const s = { running: false, phase: "cruise", vb: 15, vp: 15, rel: 0, belt: false, t: 0, scroll: 0, hit: false };
+  const DECEL = 7, GAP = 1.1; // m/s², metres to the seat in front
+  const reset = () => Object.assign(s, { phase: "cruise", vb: 15, vp: 15, rel: 0, t: 0, hit: false, running: !reduce });
+  const sc = { el: $("c1b"), canvases: [st], get running(){ return s.running; },
+    step(dt){
+      s.t += dt; s.scroll += s.vb * dt;
+      if (s.phase === "brake"){
+        s.vb = Math.max(0, s.vb - DECEL * dt);
+        if (s.belt){ s.vp = s.vb; s.rel = Math.min(0.15, s.rel + (15 - s.vb) * 0.0004); }
+        else if (!s.hit){ s.rel += (s.vp - s.vb) * dt; if (s.rel >= GAP){ s.rel = GAP; s.hit = true; s.vp = s.vb; } }
+        else s.vp = s.vb;
+        if (s.vb === 0 && s.t > 3) s.running = false;
+      }
+    },
+    draw(){
+      const { ctx, w, h } = st; ctx.clearRect(0, 0, w, h);
+      const gy = h - 28, PX = 46;
+      // road + scrolling posts
+      ctx.fillStyle = C.ground; ctx.fillRect(0, gy, w, 4);
+      ctx.strokeStyle = C.line; ctx.lineWidth = 2;
+      for (let i = -1; i < w / 120 + 2; i++){ const X = i * 120 - (s.scroll * PX) % 120; ctx.beginPath(); ctx.moveTo(X, gy); ctx.lineTo(X, gy - 70); ctx.stroke(); }
+      // bus body
+      const bw = Math.min(w - 40, 420), bx = (w - bw) / 2, bh = 110, by = gy - bh - 14;
+      roundRect(ctx, bx, by, bw, bh, 14); ctx.fillStyle = C.paper; ctx.fill(); ctx.strokeStyle = C.ink; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = C.ink; [bx + 50, bx + bw - 60].forEach(X => { ctx.beginPath(); ctx.arc(X, gy - 8, 13, 0, Math.PI * 2); ctx.fill(); });
+      // seats
+      const seatX = bx + bw * 0.38, frontSeat = seatX + GAP * PX + 34;
+      ctx.fillStyle = C.line; roundRect(ctx, seatX - 26, by + 50, 14, 50, 4); ctx.fill(); roundRect(ctx, frontSeat, by + 50, 14, 50, 4); ctx.fill();
+      // passenger
+      const px = seatX + s.rel * PX, lean = s.belt ? s.rel * 120 : 0;
+      ctx.strokeStyle = C.accent; ctx.fillStyle = C.accent; ctx.lineWidth = 6; ctx.lineCap = "round";
+      ctx.beginPath(); ctx.moveTo(px, by + 92); ctx.lineTo(px + lean * 0.6, by + 52); ctx.stroke();
+      ctx.beginPath(); ctx.arc(px + lean, by + 38, 11, 0, Math.PI * 2); ctx.fill();
+      if (s.belt){ ctx.strokeStyle = C["f-other"]; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(px - 14, by + 52); ctx.lineTo(px + 10, by + 90); ctx.stroke(); }
+      if (s.hit){ text(ctx, "Μπαμ!", frontSeat + 6, by + 36, C.bad, 14, "center", 700); }
+      // velocity arrows
+      arrow(ctx, bx + bw - 10, by - 8, bx + bw - 10 + s.vb * 4, by - 8, C.muted, null, 2);
+      text(ctx, "λεωφορείο " + fmt(s.vb, 1) + " m/s", bx + bw - 14, by - 8, C.muted, 11, "right");
+      text(ctx, "επιβάτης " + fmt(s.vp, 1) + " m/s", bx + 10, by - 8, C.accent, 11, "left", 600);
+      if (s.phase === "brake" && s.belt && s.vb > 0) arrow(ctx, px + 4, by + 70, px - 34, by + 70, C["f-other"], "ζώνη");
+      if (s.phase === "brake" && !s.belt && !s.hit) text(ctx, "Καμία οριζόντια δύναμη στον επιβάτη", w / 2, by + 14, C.ink, 12, "center", 600);
+    } };
+  $("b1brake").addEventListener("click", () => { if (s.phase === "cruise"){ s.phase = "brake"; s.t = 0; s.running = true; } });
+  $("b1again").addEventListener("click", () => { reset(); s.running = true; sc.draw(); });
+  $("b1belt").addEventListener("click", e => { s.belt = !s.belt; e.currentTarget.setAttribute("aria-pressed", s.belt); reset(); s.running = true;
+    $("h1b").textContent = s.belt ? "Με ζώνη: η ζώνη ασκεί στον επιβάτη τη δύναμη m·a₀ που χρειάζεται για να επιβραδυνθεί μαζί με το λεωφορείο (2ος νόμος). Για 70 kg αυτό είναι περίπου 490 N." : "Χωρίς ζώνη: τίποτα δεν επιβραδύνει τον επιβάτη μέχρι να βρει το μπροστινό κάθισμα. Στο σύστημα του δρόμου απλώς συνεχίζει με 15 m/s (1ος νόμος).";
+    sc.draw(); });
+  reset();
+  addScene(sc);
+}
+
+/* ======================= LAW 2: cart F = ma ======================= */
+{
+  const st = setupCanvas($("c2")), gs = setupCanvas($("g2"));
+  const F = bindRange("s2F", "o2F", v => v + " N");
+  const m = bindRange("s2m", "o2m", v => fmt(v, 1) + " kg");
+  const mu = bindRange("s2mu", "o2mu", v => fmt(v, 2));
+  const LEN = 20, TMAX = 8;
+  const mk = () => ({ x: 0, v: 0, hist: [] });
+  const s = { running: false, t: 0, race: false, a: mk(), b: mk() };
+  const accel = (mass, v) => {
+    const fr = +mu.value * mass * G, f = +F.value;
+    if (v <= 0 && f <= fr) return { a: 0, fric: f, net: 0 };
+    const net = f - fr; return { a: net / mass, fric: fr, net };
+  };
+  const sc = { el: $("c2"), canvases: [st, gs], get running(){ return s.running; },
+    step(dt){
+      s.t += dt;
+      [[s.a, +m.value], ...(s.race ? [[s.b, 2 * +m.value]] : [])].forEach(([c, mass]) => {
+        if (c.x >= LEN) return;
+        const r = accel(mass, c.v); c.v = Math.max(0, c.v + r.a * dt); c.x = Math.min(LEN, c.x + c.v * dt);
+        if (!c.hist.length || s.t - c.hist[c.hist.length - 1][0] > 0.05) c.hist.push([s.t, c.v]);
+      });
+      if (s.t > TMAX || (s.a.x >= LEN && (!s.race || s.b.x >= LEN))) s.running = false;
+    },
+    draw(){
+      const { ctx, w, h } = st; ctx.clearRect(0, 0, w, h);
+      const lanes = s.race ? 2 : 1, laneH = (h - 20) / lanes, x0 = 30, x1 = w - 30, PX = (x1 - x0 - 60) / LEN;
+      const rA = accel(+m.value, s.a.v);
+      [[s.a, +m.value, "m"], [s.b, 2 * +m.value, "2m"]].slice(0, lanes).forEach(([c, mass, lbl], i) => {
+        const gy = 14 + laneH * (i + 1) - 18;
+        ctx.fillStyle = C.ground; ctx.fillRect(x0, gy, x1 - x0, 3);
+        ctx.strokeStyle = C.bad; ctx.lineWidth = 2; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(x0 + 60 + LEN * PX, gy); ctx.lineTo(x0 + 60 + LEN * PX, gy - laneH + 30); ctx.stroke(); ctx.setLineDash([]);
+        const scale = Math.min(1.25, 0.75 + mass / 40), cw = 56 * scale, ch = 30 * scale;
+        const cx = x0 + 30 + c.x * PX, top = gy - ch - 10;
+        roundRect(ctx, cx - cw / 2, top, cw, ch, 5); ctx.fillStyle = i ? C["f-other"] : C.accent; ctx.fill();
+        ctx.fillStyle = C.ink; [cx - cw * 0.3, cx + cw * 0.3].forEach(X => { ctx.beginPath(); ctx.arc(X, gy - 6, 6, 0, Math.PI * 2); ctx.fill(); });
+        text(ctx, lbl + " = " + fmt(mass, 1) + " kg", cx, top + ch / 2, C.paper, 11, "center", 700);
+        if (i === 0 || lanes === 1){
+          const r = accel(mass, c.v), k = 1.6, mid = top + ch / 2;
+          if (+F.value > 0) arrow(ctx, cx + cw / 2, mid, cx + cw / 2 + +F.value * k * 0.9 + 4, mid, C["f-app"], "F");
+          if (r.fric > 0.01) arrow(ctx, cx - cw / 2, gy - 3, cx - cw / 2 - r.fric * k * 0.9 - 4, gy - 3, C["f-fric"], "f");
+          if (!s.race){
+            arrow(ctx, cx, top, cx, top - Math.min(40, 14 + mass * 1.3), C["f-norm"], "N");
+            arrow(ctx, cx + 8, top + ch, cx + 8, Math.min(h - 4, top + ch + 6 + Math.min(30, mass * 1.3)), C["f-wt"], "W");
+          }
+        } else {
+          const r = accel(mass, c.v), k = 1.6, mid = top + ch / 2;
+          if (+F.value > 0) arrow(ctx, cx + cw / 2, mid, cx + cw / 2 + +F.value * k * 0.9 + 4, mid, C["f-app"], "F");
+          if (r.fric > 0.01) arrow(ctx, cx - cw / 2, gy - 3, cx - cw / 2 - r.fric * k * 0.9 - 4, gy - 3, C["f-fric"], "f");
+        }
+        text(ctx, "x = " + fmt(c.x, 1) + " m", x0, gy - laneH + 34, C.muted, 11);
+      });
+      $("r2T").textContent = fmt(rA.fric, 1) + " N";
+      $("r2S").textContent = fmt(rA.net, 1) + " N";
+      $("r2a").textContent = fmt(rA.a) + " m/s²";
+      $("r2v").textContent = fmt(s.a.v, 1) + " m/s, " + fmt(s.a.x, 1) + " m";
+      const series = [{ pts: s.a.hist, color: C.accent, label: "m" }];
+      if (s.race) series.push({ pts: s.b.hist, color: C["f-other"], label: "2m" });
+      plot(gs, series, { tMax: TMAX, yLabel: "v [m/s]", yMin: 5 });
+      const net = +F.value - +mu.value * +m.value * G;
+      $("h2").textContent = net <= 0 ? "Η δύναμη δεν ξεπερνά την τριβή: ΣF = 0, οπότε το καρότσι μένει ακίνητο (1ος νόμος)." :
+        s.race ? "Ίδια δύναμη, διπλάσια μάζα: χωρίς τριβή η επιτάχυνση είναι η μισή. Με τριβή είναι ακόμα μικρότερη, γιατί η τριβή διπλασιάζεται κι αυτή." :
+        "Διπλασίασε τη δύναμη και δες την επιτάχυνση να διπλασιάζεται. Η κλίση του γραφήματος v–t είναι η επιτάχυνση.";
+    } };
+  const reset = () => { s.t = 0; s.a = mk(); s.b = mk(); s.running = false; sc.draw(); };
+  $("b2go").addEventListener("click", () => { reset(); s.running = true; });
+  $("b2reset").addEventListener("click", reset);
+  $("b2race").addEventListener("click", e => { s.race = !s.race; e.currentTarget.setAttribute("aria-pressed", s.race); reset(); });
+  [F, m, mu].forEach(el => el.addEventListener("input", () => sc.draw()));
+  addScene(sc);
+}
+
+/* ======================= INCLINE: static / kinetic friction ======================= */
+{
+  const st = setupCanvas($("cI"));
+  const th = bindRange("sIth", "oIth", v => v + "°");
+  const ms = bindRange("sIms", "oIms", v => fmt(v, 2));
+  const mk = bindRange("sImk", "oImk", v => fmt(v, 2));
+  const M = 2, L = 3;
+  let comps = true;
+  const s = { s: 0, v: 0, t: 0, running: false, sliding: false, started: false };
+  const phys = () => {
+    const t = +th.value * Math.PI / 180, W = M * G, Wp = W * Math.sin(t), N = W * Math.cos(t), muk = +mk.value;
+    if (!s.sliding && Wp <= +ms.value * N + 1e-9) return { t, W, N, Wp, f: Wp, a: 0, kind: "s" };
+    return { t, W, N, Wp, f: muk * N, a: Math.max(0, (Wp - muk * N) / M), kind: "k" };
+  };
+  const sc = { el: $("cI"), canvases: [st], get running(){ return s.running; },
+    step(dt){
+      const p = phys(); s.t += dt;
+      if (p.kind === "k"){ s.sliding = true; s.v += p.a * dt; s.s += s.v * dt; }
+      else if (s.t > 0.8) s.running = false;
+      if (s.s >= L - 0.7){ s.s = L - 0.7; s.running = false; }
+    },
+    draw(){
+      const { ctx, w, h } = st; ctx.clearRect(0, 0, w, h);
+      const p = phys(), t = p.t, gy = h - 22, x0 = 24, tn = Math.tan(t);
+      const B = Math.min(w - 60, tn > 0.001 ? (h - 70) / tn : w - 60), H = B * tn;
+      const top = { x: x0, y: gy - H };
+      ctx.fillStyle = C.grid; ctx.strokeStyle = C.muted; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(top.x, top.y); ctx.lineTo(x0, gy); ctx.lineTo(x0 + B, gy); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = C.ground; ctx.fillRect(0, gy, w, 3);
+      if (t > 0.01){ ctx.strokeStyle = C.ink; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(x0 + B, gy, 34, Math.PI, Math.PI + t); ctx.stroke(); text(ctx, "θ", x0 + B - 46, gy - 9, C.ink, 13, "center", 700); }
+      const PX = Math.hypot(B, H) / L, d = { x: Math.cos(t), y: Math.sin(t) }, n = { x: Math.sin(t), y: -Math.cos(t) }, bs = 34;
+      const along = 6 + s.s * PX + bs / 2;
+      const cx = top.x + d.x * along + n.x * bs / 2, cy = top.y + d.y * along + n.y * bs / 2;
+      ctx.save(); ctx.translate(cx, cy); ctx.rotate(t); roundRect(ctx, -bs / 2, -bs / 2, bs, bs, 4); ctx.fillStyle = C.accent; ctx.fill(); ctx.restore();
+      const k = 60 / p.W;
+      if (comps && t > 0.01){
+        ctx.setLineDash([4, 3]);
+        arrow(ctx, cx, cy, cx + d.x * p.Wp * k, cy + d.y * p.Wp * k, C["f-wt"], "mg sinθ", 1.5);
+        arrow(ctx, cx, cy, cx - n.x * p.N * k, cy - n.y * p.N * k, C["f-wt"], "mg cosθ", 1.5);
+        ctx.setLineDash([]);
+      }
+      arrow(ctx, cx, cy, cx, cy + p.W * k, C["f-wt"], "W");
+      arrow(ctx, cx, cy, cx + n.x * p.N * k, cy + n.y * p.N * k, C["f-norm"], "N");
+      const c0 = { x: cx - n.x * bs / 2, y: cy - n.y * bs / 2 };
+      if (p.f > 0.01) arrow(ctx, c0.x, c0.y, c0.x - d.x * p.f * k, c0.y - d.y * p.f * k, C["f-fric"], p.kind === "s" ? "f_s" : "f_k");
+      if (s.v > 0.05) arrow(ctx, cx + n.x * 30, cy + n.y * 30, cx + n.x * 30 + d.x * (10 + s.v * 10), cy + n.y * 30 + d.y * (10 + s.v * 10), C.muted, "v", 2);
+      const msg = p.kind === "s" ? "Ισορροπία: tanθ ≤ μ_s" : (s.sliding ? (s.running ? "Ολισθαίνει" : "Έφτασε στη βάση") : "tanθ > μ_s: θα ολισθήσει μόλις αφεθεί");
+      text(ctx, msg, w - 12, 16, C.ink, 13, "right", 600);
+      $("rIN").textContent = fmt(p.N, 1) + " N";
+      $("rIf").textContent = fmt(p.f, 1) + " N " + (p.kind === "s" ? "(στατική)" : "(κινητική)");
+      $("rIc").textContent = fmt(Math.atan(+ms.value) * 180 / Math.PI, 1) + "°";
+      $("rIa").textContent = fmt(s.sliding || p.kind === "k" ? p.a : 0) + " m/s²";
+      $("rIv").textContent = fmt(s.v) + " m/s";
+      $("hI").textContent = p.kind === "s"
+        ? `tanθ = ${fmt(Math.tan(t), 3)} ≤ μ_s = ${fmt(+ms.value, 2)}. Η στατική τριβή παίρνει την τιμή mg sinθ = ${fmt(p.Wp, 1)} N, μικρότερη από το μέγιστο μ_s N = ${fmt(+ms.value * p.N, 1)} N, και το κιβώτιο μένει ακίνητο.`
+        : `tanθ = ${fmt(Math.tan(t), 3)} > μ_s = ${fmt(+ms.value, 2)}. Το κιβώτιο ολισθαίνει με a = g(sinθ − μ_k cosθ) = ${fmt(p.a)} m/s², ανεξάρτητα από τη μάζα του.`;
+    } };
+  const reset = () => { Object.assign(s, { s: 0, v: 0, t: 0, running: false, sliding: false }); sc.draw(); };
+  $("bIgo").addEventListener("click", () => { reset(); s.running = true; });
+  $("bIreset").addEventListener("click", reset);
+  $("bIcomp").addEventListener("click", e => { comps = !comps; e.currentTarget.setAttribute("aria-pressed", comps); sc.draw(); });
+  const clampK = () => { if (+mk.value > +ms.value){ mk.value = ms.value; $("oImk").textContent = fmt(+mk.value, 2); } };
+  ms.addEventListener("input", () => { clampK(); reset(); });
+  mk.addEventListener("input", () => { clampK(); reset(); });
+  th.addEventListener("input", reset);
+  addScene(sc);
+}
+
+/* ======================= ATWOOD machine ======================= */
+{
+  const st = setupCanvas($("cA"));
+  const m1 = bindRange("sA1", "oA1", v => fmt(v, 1) + " kg");
+  const m2 = bindRange("sA2", "oA2", v => fmt(v, 1) + " kg");
+  const LIM = 1.2, PX = 40;
+  const s = { y: 0, v: 0, running: false };
+  const calc = () => { const a1 = +m1.value, a2 = +m2.value; return { a: (a2 - a1) * G / (a1 + a2), T: 2 * a1 * a2 * G / (a1 + a2) }; };
+  const sc = { el: $("cA"), canvases: [st], get running(){ return s.running; },
+    step(dt){
+      const { a } = calc(); s.v += a * dt; s.y += s.v * dt;
+      if (Math.abs(s.y) >= LIM){ s.y = Math.sign(s.y) * LIM; s.running = false; }
+      if (a === 0 && s.v === 0) s.running = false;
+    },
+    draw(){
+      const { ctx, w, h } = st; ctx.clearRect(0, 0, w, h);
+      const { a, T } = calc(), cx = w / 2, py = 40, R = 30, rest = 130;
+      ctx.fillStyle = C.ink; ctx.fillRect(cx - 50, 4, 100, 5);
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(cx, 9); ctx.lineTo(cx, py); ctx.stroke();
+      ctx.fillStyle = C.ground; ctx.fillRect(0, h - 6, w, 6);
+      const boxes = [[+m1.value, cx - R, rest - s.y * PX, "m₁", C.accent, -1], [+m2.value, cx + R, rest + s.y * PX, "m₂", C["f-other"], 1]];
+      ctx.strokeStyle = C.muted; ctx.lineWidth = 2;
+      boxes.forEach(([, x, top]) => { ctx.beginPath(); ctx.moveTo(x, py); ctx.lineTo(x, top); ctx.stroke(); });
+      ctx.beginPath(); ctx.arc(cx, py, R, Math.PI, 0); ctx.stroke();
+      ctx.fillStyle = C.paper; ctx.strokeStyle = C.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, py, R - 3, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      const ang = s.y * PX / R;
+      for (let i = 0; i < 3; i++){ const q = ang + i * Math.PI / 3; ctx.beginPath(); ctx.moveTo(cx - Math.cos(q) * (R - 4), py - Math.sin(q) * (R - 4)); ctx.lineTo(cx + Math.cos(q) * (R - 4), py + Math.sin(q) * (R - 4)); ctx.stroke(); }
+      const k = 55 / (Math.max(+m1.value, +m2.value) * G);
+      boxes.forEach(([mass, x, top, lbl, col, side]) => {
+        const bs = 22 + mass * 3, ccy = top + bs / 2;
+        roundRect(ctx, x - bs / 2, top, bs, bs, 4); ctx.fillStyle = col; ctx.fill();
+        text(ctx, lbl, x, ccy, C.paper, 12, "center", 700);
+        arrow(ctx, x - 7 * side, ccy, x - 7 * side, ccy - T * k, C["f-other"], "T");
+        arrow(ctx, x + 7 * side, ccy, x + 7 * side, ccy + mass * G * k, C["f-wt"], "W");
+        const ai = side * a;
+        if (Math.abs(ai) > 0.01) arrow(ctx, x + side * (bs / 2 + 26), ccy, x + side * (bs / 2 + 26), ccy + ai * 5 + Math.sign(ai) * 6, C.muted, "a", 2);
+      });
+      $("rAa").textContent = fmt(Math.abs(a)) + " m/s² " + (a > 0 ? "(m₂ κάτω)" : a < 0 ? "(m₁ κάτω)" : "(ισορροπία)");
+      $("rAT").textContent = fmt(T, 1) + " N";
+      $("rAw").textContent = fmt(+m1.value * G, 1) + " / " + fmt(+m2.value * G, 1) + " N";
+      $("rAv").textContent = fmt(Math.abs(s.v)) + " m/s";
+    } };
+  const reset = () => { Object.assign(s, { y: 0, v: 0, running: false }); sc.draw(); };
+  $("bAgo").addEventListener("click", () => { reset(); s.running = true; });
+  $("bAreset").addEventListener("click", reset);
+  [m1, m2].forEach(el => el.addEventListener("input", reset));
+  addScene(sc);
+}
+
+/* ======================= DRAG: terminal velocity ======================= */
+{
+  const st = setupCanvas($("cD")), gs = setupCanvas($("gD"));
+  let quad = false;
+  const mD = bindRange("sDm", "oDm", v => fmt(v, 1) + " kg");
+  const kD = $("sDk"), oK = $("oDk");
+  const showK = () => oK.textContent = quad ? fmt(+kD.value, 2) + " kg/m" : fmt(+kD.value, 1) + " kg/s";
+  const TMAX = 6, PXM = 30;
+  const s = { v: 0, y: 0, t: 0, hist: [], running: false };
+  const drag = v => quad ? +kD.value * v * v : +kD.value * v;
+  const vt = () => quad ? Math.sqrt(+mD.value * G / +kD.value) : +mD.value * G / +kD.value;
+  const sc = { el: $("cD"), canvases: [st, gs], get running(){ return s.running; },
+    step(dt){
+      const n = Math.ceil(dt / 0.002), hh = dt / n;
+      for (let i = 0; i < n; i++){ const a = G - drag(s.v) / +mD.value; s.v += a * hh; s.y += s.v * hh; }
+      s.t += dt;
+      if (!s.hist.length || s.t - s.hist[s.hist.length - 1][0] > 0.04) s.hist.push([s.t, s.v]);
+      if (s.t > TMAX) s.running = false;
+    },
+    draw(){
+      const { ctx, w, h } = st; ctx.clearRect(0, 0, w, h);
+      const X = w * 0.4, Y = h * 0.42, sp = 30, off = (s.y * PXM) % sp;
+      ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+      for (let yy = -off; yy < h + sp; yy += sp){ ctx.beginPath(); ctx.moveTo(0, yy); ctx.lineTo(w, yy); ctx.stroke(); }
+      const W = +mD.value * G, D = drag(s.v), k = 60 / W, r = 10 + +mD.value * 1.2;
+      ctx.fillStyle = C.accent; ctx.beginPath(); ctx.arc(X, Y, r, 0, Math.PI * 2); ctx.fill();
+      arrow(ctx, X + 4, Y, X + 4, Y + W * k + r, C["f-wt"], "W");
+      if (D > 0.01) arrow(ctx, X - 4, Y, X - 4, Y - Math.min(D * k, 90) - r, C["f-fric"], "D");
+      const ratio = D / W;
+      text(ctx, s.t === 0 ? "Πάτα «Άφησε»" : (ratio > 0.99 ? "D ≈ W: ΣF ≈ 0, σταθερή v_t" : "D < W: επιταχύνεται, όλο και λιγότερο"), w - 12, 16, C.ink, 13, "right", 600);
+      // bar D/W
+      const bx = w - 40, bh = h - 60, by = 34;
+      ctx.strokeStyle = C.muted; ctx.strokeRect(bx, by, 14, bh);
+      ctx.fillStyle = C["f-fric"]; const fh = Math.min(1, ratio) * bh; ctx.fillRect(bx, by + bh - fh, 14, fh);
+      text(ctx, "D/W", bx + 7, by + bh + 12, C.muted, 10, "center");
+      $("rDv").textContent = fmt(s.v) + " m/s";
+      $("rDD").textContent = Math.round(ratio * 100) + "%";
+      $("rDa").textContent = fmt(G - D / +mD.value) + " m/s²";
+      $("rDvt").textContent = fmt(vt()) + " m/s";
+      plot(gs, [{ pts: s.hist, color: C.accent, label: "v" }, { pts: [[0, vt()], [TMAX, vt()]], color: C["f-fric"], dash: true, label: "v_t" }], { tMax: TMAX, yLabel: "v [m/s]", yMin: 2 });
+    } };
+  const reset = () => { Object.assign(s, { v: 0, y: 0, t: 0, hist: [], running: false }); sc.draw(); };
+  const setMode = q => {
+    quad = q; $("bDlin").setAttribute("aria-pressed", !q); $("bDquad").setAttribute("aria-pressed", q);
+    $("lDk").firstChild.textContent = q ? "Συντελεστής c " : "Συντελεστής b ";
+    if (q){ kD.min = 0.02; kD.max = 1; kD.step = 0.01; kD.value = 0.2; } else { kD.min = 1; kD.max = 20; kD.step = 0.5; kD.value = 4; }
+    showK(); reset();
+  };
+  $("bDlin").addEventListener("click", () => setMode(false));
+  $("bDquad").addEventListener("click", () => setMode(true));
+  kD.addEventListener("input", () => { showK(); reset(); });
+  mD.addEventListener("input", reset);
+  $("bDgo").addEventListener("click", () => { reset(); s.running = true; });
+  $("bDreset").addEventListener("click", reset);
+  showK();
+  addScene(sc);
+}
+
+/* ======================= LAW 3: skaters ======================= */
+{
+  const st = setupCanvas($("c3"));
+  const mA = bindRange("s3a", "o3a", v => v + " kg");
+  const mB = bindRange("s3b", "o3b", v => v + " kg");
+  const F = bindRange("s3F", "o3F", v => v + " N");
+  const PUSH = 0.5;
+  const s = { running: false, t: 0, xa: -0.3, xb: 0.3, va: 0, vb: 0, done: false };
+  const sc = { el: $("c3"), canvases: [st], get running(){ return s.running; },
+    step(dt){
+      const pushing = s.t < PUSH;
+      if (pushing){ const d = Math.min(dt, PUSH - s.t); s.va -= +F.value / +mA.value * d; s.vb += +F.value / +mB.value * d; }
+      s.t += dt; s.xa += s.va * dt; s.xb += s.vb * dt;
+      if (s.t > 6 || s.xb > 4.5) s.running = false;
+    },
+    draw(){
+      const { ctx, w, h } = st; ctx.clearRect(0, 0, w, h);
+      const gy = h - 30, PX = Math.min(70, w / 10), cx = w / 2;
+      ctx.fillStyle = C.ground; ctx.fillRect(0, gy, w, 3);
+      text(ctx, "πάγος, χωρίς τριβή", 12, gy + 16, C.muted, 11);
+      const person = (x, mass, color, lbl, dir) => {
+        const X = cx + x * PX, s2 = 0.7 + mass / 200, hh = 70 * s2;
+        ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 5 + mass / 30; ctx.lineCap = "round";
+        ctx.beginPath(); ctx.moveTo(X, gy - 6); ctx.lineTo(X, gy - hh); ctx.stroke();
+        ctx.beginPath(); ctx.arc(X, gy - hh - 12 * s2, 11 * s2, 0, Math.PI * 2); ctx.fill();
+        ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(X, gy - hh * 0.75); ctx.lineTo(X + dir * 22, gy - hh * 0.7); ctx.stroke();
+        ctx.strokeStyle = C.muted; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(X - 14, gy - 2); ctx.lineTo(X + 14, gy - 2); ctx.stroke();
+        text(ctx, lbl + " · " + mass + " kg", X, gy - hh - 34 * s2, C.ink, 12, "center", 600);
+        return { X, y: gy - hh * 0.72 };
+      };
+      const a = person(s.xa, +mA.value, C.accent, "Α", 1), b = person(s.xb, +mB.value, C["f-other"], "Β", -1);
+      const xcm = (+mA.value * s.xa + +mB.value * s.xb) / (+mA.value + +mB.value), XC = cx + xcm * PX;
+      ctx.fillStyle = C.good; ctx.beginPath(); ctx.moveTo(XC, gy + 2); ctx.lineTo(XC - 7, gy + 14); ctx.lineTo(XC + 7, gy + 14); ctx.closePath(); ctx.fill();
+      text(ctx, "ΚΜ", XC + 10, gy + 10, C.good, 11, "left", 700);
+      $("r3cm").textContent = fmt(xcm, 2) + " m";
+      const pushing = s.running && s.t < PUSH;
+      if (pushing || (!s.running && s.t === 0)){
+        const L = 18 + +F.value * 0.15;
+        arrow(ctx, a.X + 22, a.y - 10, a.X + 22 - L, a.y - 10, C["f-app"], "F_Β→Α");
+        arrow(ctx, b.X - 22, b.y - 10, b.X - 22 + L, b.y - 10, C["f-app"], "F_Α→Β");
+      }
+      if (s.t > 0){
+        arrow(ctx, a.X, gy - 120 + 30, a.X + s.va * 30, gy - 120 + 30, C.muted, null, 2);
+        arrow(ctx, b.X, gy - 120 + 30, b.X + s.vb * 30, gy - 120 + 30, C.muted, null, 2);
+      }
+      text(ctx, pushing ? "Ώθηση: ίσες και αντίθετες δυνάμεις" : (s.t > 0 ? "Μετά την ώθηση: καμία δύναμη, σταθερές ταχύτητες" : "Πάτα «Σπρώξτε!»"), 12, 16, C.ink, 13, "left", 600);
+      $("r3a").textContent = fmt(s.va) + " m/s";
+      $("r3b").textContent = fmt(s.vb) + " m/s";
+      $("r3p").textContent = fmt(+mA.value * s.va + +mB.value * s.vb, 1) + " kg·m/s";
+    } };
+  const reset = () => { Object.assign(s, { running: false, t: 0, xa: -0.3, xb: 0.3, va: 0, vb: 0 }); sc.draw(); };
+  $("b3push").addEventListener("click", () => { reset(); s.running = true; });
+  $("b3reset").addEventListener("click", reset);
+  [mA, mB, F].forEach(el => el.addEventListener("input", reset));
+  addScene(sc);
+}
+
+/* ======================= LAW 3b: variable-mass rocket ======================= */
+{
+  const st = setupCanvas($("c3b")), gs = setupCanvas($("g3b"));
+  const T = bindRange("s3T", "o3T", v => v + " N");
+  const m0 = bindRange("s3m", "o3m", v => fmt(v, 1) + " kg");
+  const ff = bindRange("s3f", "o3f", v => Math.round(v * 100) + "%");
+  const TB = 3, TMAX = 12;
+  const s = { running: false, on: false, y: 0, v: 0, t: 0, parts: [], hist: [], vmax: 0, ymax: 0 };
+  const pars = () => { const M0 = +m0.value, mf = M0 * (1 - +ff.value), md = (M0 - mf) / TB; return { M0, mf, md, u: md > 0 ? +T.value / md : 0 }; };
+  const massAt = t => { const p = pars(); return p.M0 - p.md * Math.min(t, TB); };
+  const accAt = () => {
+    const m = massAt(s.t), thrust = s.on && s.t < TB ? +T.value : 0;
+    let a = thrust / m - G;
+    if (s.y <= 0 && a < 0 && s.v <= 0) a = 0;
+    return { a, m, thrust };
+  };
+  const sc = { el: $("c3b"), canvases: [st, gs], get running(){ return s.running; },
+    step(dt){
+      const { a, thrust } = accAt();
+      s.v += a * dt; s.y = Math.max(0, s.y + s.v * dt);
+      if (s.y === 0 && s.v < 0) s.v = 0;
+      s.t += dt; s.vmax = Math.max(s.vmax, s.v); s.ymax = Math.max(s.ymax, s.y);
+      if (!s.hist.length || s.t - s.hist[s.hist.length - 1][0] > 0.04) s.hist.push([s.t, a]);
+      if (thrust > 0) for (let i = 0; i < 3; i++) s.parts.push({ x: (Math.random() - 0.5) * 8, y: 0, vy: 60 + Math.random() * 60, vx: (Math.random() - 0.5) * 30, life: 0.6 });
+      s.parts.forEach(p => { p.y += p.vy * dt; p.x += p.vx * dt; p.life -= dt; });
+      s.parts = s.parts.filter(p => p.life > 0);
+      if ((s.t > TB && s.y === 0 && s.parts.length === 0) || s.t > TMAX) s.running = false;
+    },
+    draw(){
+      const { ctx, w, h } = st; ctx.clearRect(0, 0, w, h);
+      const gy = h - 20, PXM = 12, cam = Math.max(0, s.y * PXM - (h * 0.45)), X = w / 2;
+      const altLo = Math.max(0, Math.floor((cam - 20) / PXM / 10) * 10), altHi = (gy + cam) / PXM;
+      ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+      for (let m10 = altLo; m10 <= altHi + 10; m10 += 10){ const Y = gy - m10 * PXM + cam; if (Y > h || Y < -10) continue; ctx.beginPath(); ctx.moveTo(0, Y); ctx.lineTo(w, Y); ctx.stroke(); text(ctx, m10 + " m", 8, Y - 7, C.muted, 10); }
+      ctx.fillStyle = C.ground; ctx.fillRect(0, gy + cam, w, 20);
+      const ry = gy - s.y * PXM + cam;
+      s.parts.forEach(p => { ctx.globalAlpha = Math.max(0, p.life / 0.6); ctx.fillStyle = C["f-fric"]; ctx.beginPath(); ctx.arc(X + p.x, ry + 6 + p.y, 3, 0, Math.PI * 2); ctx.fill(); });
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = C.paper; ctx.strokeStyle = C.ink; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(X, ry - 70); ctx.lineTo(X + 12, ry - 50); ctx.lineTo(X + 12, ry); ctx.lineTo(X - 12, ry); ctx.lineTo(X - 12, ry - 50); ctx.closePath(); ctx.fill(); ctx.stroke();
+      // fuel gauge inside the body
+      const p = pars(), m = massAt(s.t), frac = p.M0 > p.mf ? (m - p.mf) / (p.M0 - p.mf) : 0;
+      ctx.fillStyle = C["f-fric"]; ctx.globalAlpha = 0.75; const fh = 44 * +ff.value / 0.6 * frac; ctx.fillRect(X - 7, ry - 4 - fh, 14, fh); ctx.globalAlpha = 1;
+      ctx.fillStyle = C.accent; ctx.beginPath(); ctx.moveTo(X - 12, ry); ctx.lineTo(X - 22, ry + 4); ctx.lineTo(X - 12, ry - 18); ctx.fill(); ctx.beginPath(); ctx.moveTo(X + 12, ry); ctx.lineTo(X + 22, ry + 4); ctx.lineTo(X + 12, ry - 18); ctx.fill();
+      const W = m * G, burning = s.on && s.t < TB, thrust = burning ? +T.value : (s.on ? 0 : +T.value), k = 2.2;
+      arrow(ctx, X + 34, ry - 35, X + 34, ry - 35 - thrust * k, C["f-app"], "Ώση");
+      arrow(ctx, X - 34, ry - 35, X - 34, ry - 35 + W * k, C["f-wt"], "W");
+      if (burning && thrust > 0) arrow(ctx, X, ry + 10, X, ry + 10 + Math.min(60, thrust * 1.2), C["f-fric"], "στα αέρια");
+      const { a } = s.on ? accAt() : { a: Math.max(0, +T.value / p.M0 - G) };
+      $("r3m").textContent = fmt(m, 2) + " kg";
+      $("r3acc").textContent = fmt(a) + " m/s²";
+      $("r3u").textContent = fmt(p.u, 0) + " m/s";
+      const dv = p.u * Math.log(p.M0 / p.mf) - G * TB;
+      $("r3dv").textContent = +T.value > p.M0 * G ? fmt(dv, 1) + " m/s" : "— (ώση < m₀g)";
+      $("r3h").textContent = fmt(s.y, 0) + " m, " + fmt(s.v, 1) + " m/s";
+      let msg = "Πάτα «Εκτόξευση»";
+      if (s.on){
+        if (burning) msg = s.y === 0 && s.v === 0 ? "Ώση < m(t)·g: περιμένει να ελαφρύνει…" : "Καύση: η μάζα μειώνεται, η a αυξάνεται";
+        else msg = s.y > 0 ? "Τέλος καυσίμου: μόνο βάρος, a = −g" : (s.vmax > 0 ? "Προσγείωση · μέγιστο ύψος " + fmt(s.ymax, 0) + " m" : "Δεν σηκώθηκε: η ώση δεν ξεπέρασε ποτέ το βάρος");
+      } else if (+T.value <= p.M0 * G) msg = "Ώση ≤ m₀g: αρχικά δεν σηκώνεται";
+      text(ctx, msg, w - 12, 16, C.ink, 12, "right", 600);
+      plot(gs, [{ pts: s.hist, color: C.accent, label: "a" }, { pts: [[0, -G], [TMAX, -G]], color: C["f-wt"], dash: true }], { tMax: TMAX, yLabel: "a [m/s²]", yMin: 10, neg: true });
+    } };
+  const reset = () => { Object.assign(s, { running: false, on: false, y: 0, v: 0, t: 0, parts: [], hist: [], vmax: 0, ymax: 0 }); sc.draw(); };
+  $("b3launch").addEventListener("click", () => { reset(); s.on = true; s.running = true; });
+  $("b3land").addEventListener("click", reset);
+  [T, m0, ff].forEach(el => el.addEventListener("input", () => { if (!s.running) reset(); }));
+  addScene(sc);
+}
+
+/* ======================= progress ======================= */
+const KEY = "newton-physics1-v2";
+let store = {};
+try { store = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e) { store = {}; }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e) {} };
+function updateProgress(){
+  const laws = ["law1", "law2", "forces", "law3"], n = laws.filter(k => store["L_" + k]).length;
+  $("progText").textContent = `${n} από 4 ενότητες`;
+  $("progBar").style.width = (n / 4 * 100) + "%";
+  document.querySelectorAll(".rail a[data-sec]").forEach(a => a.classList.toggle("done", !!store["L_" + a.dataset.sec]));
+}
+document.querySelectorAll("[data-learn]").forEach(cb => {
+  cb.checked = !!store["L_" + cb.dataset.learn];
+  cb.addEventListener("change", () => { store["L_" + cb.dataset.learn] = cb.checked; save(); updateProgress(); });
+});
+updateProgress();
+
+/* ======================= exercises ======================= */
+const parseNum = s => { const v = parseFloat(String(s).trim().replace(",", ".").replace("−", "-")); return isNaN(v) ? null : v; };
+document.querySelectorAll(".ex").forEach((ex, i) => {
+  const inputs = [...ex.querySelectorAll("input[data-ans]")], fb = ex.querySelector(".feedback"), h3 = ex.querySelector("h3");
+  const mark = () => { if (!h3.querySelector(".tag.ok")){ const t = document.createElement("span"); t.className = "tag ok"; t.textContent = "✓ λύθηκε"; h3.append(t); } };
+  if (store["E" + i]) mark();
+  ex.querySelector(".check").addEventListener("click", () => {
+    let ok = 0;
+    inputs.forEach(inp => {
+      const v = parseNum(inp.value), ans = +inp.dataset.ans, tol = +inp.dataset.tol;
+      const good = v !== null && (Math.abs(ans) < 1e-9 ? Math.abs(v) <= 0.01 : Math.abs(v - ans) <= Math.abs(ans) * tol);
+      inp.classList.toggle("ok", good); inp.classList.toggle("bad", !good); if (good) ok++;
+    });
+    if (ok === inputs.length){ fb.textContent = "Σωστά! 🎉"; fb.style.color = "var(--good)"; store["E" + i] = true; save(); mark(); }
+    else { fb.textContent = `${ok} από ${inputs.length} σωστά. Δες τα κόκκινα πεδία, ή άνοιξε τη λύση.`; fb.style.color = "var(--bad)"; }
+  });
+});
+
+/* ======================= quiz ======================= */
+const Q = [
+  ["Ποιο από τα παρακάτω είναι, με καλή προσέγγιση, αδρανειακό σύστημα αναφοράς;", ["Ένα τρένο που φρενάρει", "Ένα αεροπλάνο σε ευθεία πτήση με σταθερή ταχύτητα", "Ένα καρουζέλ που περιστρέφεται"], 1, "Κάθε σύστημα που κινείται με σταθερή ταχύτητα ως προς αδρανειακό είναι κι αυτό αδρανειακό (μετασχηματισμός Γαλιλαίου). Τα άλλα δύο έχουν επιτάχυνση."],
+  ["Ένας δορυφόρος σε κυκλική τροχιά κινείται με σταθερό μέτρο ταχύτητας. Τι ισχύει στο αδρανειακό σύστημα;", ["ΣF = 0, αφού το μέτρο της ταχύτητας είναι σταθερό", "Η βαρύτητα είναι η κεντρομόλος δύναμη, ΣF = mv²/r", "Η φυγόκεντρος ισορροπεί τη βαρύτητα"], 1, "Η κατεύθυνση της ταχύτητας αλλάζει, άρα υπάρχει επιτάχυνση v²/r προς το κέντρο. Φυγόκεντρος εμφανίζεται μόνο στο περιστρεφόμενο σύστημα του δορυφόρου."],
+  ["Κιβώτιο 10 kg σε οριζόντιο δάπεδο με μ_s = 0.5. Το σπρώχνεις οριζόντια με 20 N και δεν κινείται. Η στατική τριβή είναι:", ["49 N", "20 N", "0 N, αφού δεν κινείται"], 1, "Η στατική τριβή παίρνει όση τιμή χρειάζεται για ισορροπία, εδώ 20 N. Το μ_s·N = 49 N είναι μόνο το μέγιστό της."],
+  ["Σώμα κατεβαίνει κεκλιμένο επίπεδο με σταθερή ταχύτητα. Τι ισχύει;", ["μ_k = tanθ", "μ_k = sinθ", "Δεν μπορεί να συμβεί, πάντα επιταχύνεται"], 0, "Σταθερή ταχύτητα σημαίνει mg sinθ = μ_k mg cosθ, δηλαδή μ_k = tanθ."],
+  ["Σε μηχανή Atwood με m₂ > m₁, η τάση του νήματος T είναι:", ["T = m₂g", "m₁g < T < m₂g", "T = (m₁ + m₂)g"], 1, "Το m₁ επιταχύνεται προς τα πάνω, άρα T > m₁g. Το m₂ προς τα κάτω, άρα T < m₂g. Ο τύπος T = 2m₁m₂g/(m₁+m₂) είναι πάντα ανάμεσα."],
+  ["Σε μηχανή Atwood με ίσες μάζες δίνεις μια ώθηση στο ένα σώμα. Μετά την ώθηση:", ["Σταματά αμέσως", "Κινείται με σταθερή ταχύτητα", "Επιταχύνεται συνεχώς"], 1, "Με m₁ = m₂ βγαίνει a = 0, άρα ΣF = 0 και ισχύει ο 1ος νόμος: σταθερή ταχύτητα."],
+  ["Ένα φορτηγό συγκρούεται μετωπικά με ένα μικρό αυτοκίνητο. Ποιο δέχεται μεγαλύτερη δύναμη;", ["Το αυτοκίνητο", "Το φορτηγό", "Ίσες δυνάμεις"], 2, "3ος νόμος. Η ζημιά διαφέρει γιατί η επιβράδυνση F/m του αυτοκινήτου είναι πολύ μεγαλύτερη."],
+  ["Το βάρος ενός βιβλίου στο τραπέζι και η κάθετη αντίδραση N είναι ζεύγος δράσης–αντίδρασης;", ["Ναι, είναι ίσα και αντίθετα", "Όχι, ασκούνται στο ίδιο σώμα", "Ναι, αλλά μόνο όταν ηρεμεί"], 1, "Ένα ζεύγος δράσης–αντίδρασης ασκείται σε διαφορετικά σώματα και είναι του ίδιου είδους. Εδώ ισχύει N = W μόνο λόγω ισορροπίας (2ος νόμος)."],
+  ["Αστροναύτης αιωρείται ακίνητος στο διάστημα, μακριά από οτιδήποτε. Μπορεί να μετακινήσει το κέντρο μάζας του κουνώντας χέρια και πόδια;", ["Ναι, αν κινηθεί αρκετά γρήγορα", "Όχι, οι εσωτερικές δυνάμεις δεν αλλάζουν την ορμή του συστήματος", "Ναι, αλλά μόνο λίγο"], 1, "M·a_ΚΜ = ΣF_εξ = 0. Μπορεί να αλλάξει τον προσανατολισμό του, όχι τη θέση του κέντρου μάζας."],
+  ["Σώμα πέφτει στον αέρα και έχει φτάσει την οριακή του ταχύτητα. Η αντίσταση του αέρα είναι:", ["Μηδέν", "Ίση με το βάρος", "Μεγαλύτερη από το βάρος"], 1, "Σταθερή ταχύτητα σημαίνει ΣF = 0, άρα D = mg."],
+  ["Πύραυλος με σταθερή ώση ανεβαίνει κατακόρυφα. Γιατί αυξάνεται η επιτάχυνσή του όσο καίει καύσιμο;", ["Γιατί αυξάνεται η ώση", "Γιατί μειώνεται η μάζα του", "Γιατί μειώνεται το g με το ύψος"], 1, "a = u·ṁ/m − g. Ο αριθμητής μένει σταθερός, ενώ η m μειώνεται. Η μεταβολή του g σε μικρά ύψη είναι αμελητέα."],
+  ["Ανελκυστήρας ανεβαίνει και επιβραδύνεται για να σταματήσει. Η ένδειξη της ζυγαριάς σου είναι:", ["Μεγαλύτερη από το βάρος σου", "Μικρότερη από το βάρος σου", "Ίση με το βάρος σου"], 1, "Επιβράδυνση ενώ ανεβαίνει σημαίνει επιτάχυνση προς τα κάτω, άρα N = m(g − a) < mg."],
+];
+const qBox = $("quizBox"); let qState = [];
+function renderQuiz(){
+  qBox.innerHTML = ""; qState = Q.map(() => null);
+  Q.forEach(([q, opts, right, why], i) => {
+    const d = document.createElement("div"); d.className = "q";
+    d.innerHTML = `<p>${i + 1}. ${q}</p><div class="opts"></div><div class="why" hidden></div>`;
+    const box = d.querySelector(".opts"), w = d.querySelector(".why");
+    opts.forEach((o, j) => {
+      const b = document.createElement("button"); b.type = "button"; b.textContent = o;
+      b.addEventListener("click", () => {
+        if (qState[i] !== null) return;
+        qState[i] = j === right;
+        box.querySelectorAll("button").forEach((bb, k) => { if (k === right) bb.classList.add("right"); else if (k === j) bb.classList.add("wrong"); bb.disabled = true; });
+        w.hidden = false; w.textContent = (j === right ? "Σωστά. " : "Όχι ακριβώς. ") + why;
+        updateScore();
+      });
+      box.append(b);
+    });
+    qBox.append(d);
+  });
+  updateScore();
+}
+function updateScore(){ const ans = qState.filter(x => x !== null).length, ok = qState.filter(x => x).length; $("qScore").textContent = ans ? `${ok} / ${ans} σωστές` : `${Q.length} ερωτήσεις`; }
+$("qReset").addEventListener("click", renderQuiz);
+renderQuiz();
+})();
+</script>
+
+</body>
+</html>

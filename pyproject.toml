@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mech-tools"
+version = "0.1.0"
+description = "Tested calculators for beams and pipe flow"
+authors = [{ name = "George Chatzis" }]
+license = { text = "MIT" }
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+
+[project.optional-dependencies]
+plots = ["matplotlib"]
+
+[tool.setuptools]
+packages = ["mechtools"]

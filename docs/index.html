@@ -299,7 +299,6 @@ footer{font-family:var(--f-ui);font-style:normal}
   </div>
   <div class="progress"><span id="progText">0 από 4 ενότητες</span><div class="bar"><i id="progBar"></i></div></div>
 </header>
-<nav class="toc" id="toc" aria-label="Περιεχόμενα"><h2>Περιεχόμενα</h2></nav>
 </div>
 
 <aside class="tree" id="tree" aria-label="Περιεχόμενα"><h2>Περιεχόμενα <button type="button" id="treeClose" aria-label="Κλείσιμο">✕</button></h2><div id="treeBody"></div></aside>
@@ -1438,7 +1437,7 @@ const bindRange = (id, outId, fmtFn) => { const el = $(id), o = $(outId); const 
     html += `<a class="ch" href="#${sec.id}"><span class="n">${ch || ""}</span><span class="t">${h2.textContent}</span><span class="dots"></span></a>`;
     if (ch){ let k = 0; sec.querySelectorAll(":scope > h3").forEach(h => { k++; if (!h.id) h.id = sec.id + "-" + k; html += `<a class="sub" href="#${h.id}"><span class="n">${ch}.${k}</span><span class="t">${h.textContent}</span><span class="dots"></span></a>`; }); }
   });
-  toc.insertAdjacentHTML("beforeend", html);
+  if (toc) toc.insertAdjacentHTML("beforeend", html);
 }
 
 /* ======================= left contents tree ======================= */

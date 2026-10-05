@@ -269,6 +269,9 @@ footer{font-family:var(--f-ui);font-style:normal}
   nav.rail{display:none}
 }
 @media print{.tree,.tree-btn,.tree-scrim{display:none!important}}
+.chapnav{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:28px 0 8px;font-family:var(--f-ui)}
+.chapnav a{display:inline-block;padding:10px 14px;border:1px solid var(--line);border-radius:6px;color:var(--accent);text-decoration:none;font-weight:600;background:var(--paper)}
+.chapnav a:hover{border-color:var(--accent)}
 </style>
 </head>
 <body>
@@ -849,6 +852,8 @@ footer{font-family:var(--f-ui);font-style:normal}
     <div><h4>Σταθερή επιτάχυνση</h4><div class="mj">\[v=v_0+at,\quad x=v_0t+\tfrac12at^2,\quad v^2=v_0^2+2a\Delta x\]</div></div>
   </div>
 </section>
+
+<nav class="chapnav" aria-label="Κεφάλαια μαθήματος"><span></span><a href="https://gpchatzis-a11y.github.io/mech-tools/ergo-energeia.html">Επόμενο: Έργο και ενέργεια →</a></nav>
 
 <footer>Σημειώσεις για προσωπική μελέτη στο μάθημα Φυσική Ι. Τα animation χρησιμοποιούν αριθμητική ολοκλήρωση του 2ου νόμου με g = 9.81 m/s². Αγνοούν την αντίσταση του αέρα, εκτός από το εργαστήριο της οριακής ταχύτητας. Η πρόοδός σου αποθηκεύεται μόνο σε αυτή τη συσκευή.</footer>
 </main>

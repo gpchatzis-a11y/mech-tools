@@ -1,0 +1,1205 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Έργο και ενέργεια</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<script>
+window.MathJax = { tex:{ inlineMath:[["\\(","\\)"]], displayMath:[["\\[","\\]"]], tags:"ams" }, svg:{ fontCache:"global" }, options:{ enableMenu:false } };
+</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+<style>
+/* Layout: a mechanics lab notebook — a sticky law switcher, then one reading column per law; each law's prose wraps around a live "bench" canvas whose force arrows share one colour code across the page (blue applied, orange friction, violet weight, green normal). */
+:root{
+  --bg:#f2f4f7; --paper:#ffffff; --ink:#141a24; --muted:#5b6575; --line:#d9dee6;
+  --accent:#2f4fd6; --accent-ink:#ffffff; --accent-soft:#e6ebfc;
+  --f-app:#2f6fe0; --f-fric:#d9771f; --f-wt:#8b4fd1; --f-norm:#1f9a5c; --f-other:#c43d57;
+  --good:#23794a; --good-soft:#e1f2e8; --bad:#b4372f; --bad-soft:#f8e2df;
+  --note:#8a5a00; --note-soft:#fbf0d9;
+  --stage:#fafbfc; --ground:#c9d0da; --grid:#e6eaf0;
+  --f-display:"Commissioner",system-ui,sans-serif;
+  --f-body:"Literata",Georgia,serif;
+  --f-ui:"Commissioner",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"Fira Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1119; --paper:#141a25; --ink:#e4e8ef; --muted:#97a1b1; --line:#262f3d;
+  --accent:#7d97ff; --accent-ink:#0b1020; --accent-soft:#1b2440;
+  --f-app:#6aa1ff; --f-fric:#f0a050; --f-wt:#b48af0; --f-norm:#5ccf8f; --f-other:#f07a90;
+  --good:#6cc790; --good-soft:#15301f; --bad:#ef8a80; --bad-soft:#3a1c19;
+  --note:#e7b75a; --note-soft:#33280f;
+  --stage:#10161f; --ground:#384354; --grid:#1e2733; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1119; --paper:#141a25; --ink:#e4e8ef; --muted:#97a1b1; --line:#262f3d;
+  --accent:#7d97ff; --accent-ink:#0b1020; --accent-soft:#1b2440;
+  --f-app:#6aa1ff; --f-fric:#f0a050; --f-wt:#b48af0; --f-norm:#5ccf8f; --f-other:#f07a90;
+  --good:#6cc790; --good-soft:#15301f; --bad:#ef8a80; --bad-soft:#3a1c19;
+  --note:#e7b75a; --note-soft:#33280f;
+  --stage:#10161f; --ground:#384354; --grid:#1e2733; color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{background:var(--bg);color:var(--ink);font:17px/1.65 var(--f-body);padding-inline:16px;padding-block:0 64px}
+.wrap{max-width:760px;margin:0 auto}
+h1,h2,h3,h4{font-family:var(--f-display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2rem,6vw,2.7rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.55rem;font-weight:700}
+h3{font-size:1.08rem;font-weight:600;margin-top:1.4em}
+p{margin:.7em 0}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.eyebrow{font:600 .74rem/1 var(--f-ui);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.hero{padding-block:30px 14px;display:grid;gap:12px}
+.hero p{margin:0;color:var(--muted);font-size:1.02rem;max-width:58ch}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font:500 .82rem var(--f-ui);color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:18px;height:3px;border-radius:2px;display:inline-block;position:relative}
+.legend i::after{content:"";position:absolute;right:-3px;top:-3px;border-left:6px solid currentColor;border-top:4.5px solid transparent;border-bottom:4.5px solid transparent;color:inherit}
+.progress{display:flex;align-items:center;gap:10px;font:500 .85rem var(--f-ui);color:var(--muted)}
+.bar{flex:1;max-width:240px;height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--good);transition:width .3s}
+nav.rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);margin-inline:-16px;padding:8px 16px}
+.rail-inner{max-width:760px;margin:0 auto;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.rail-inner::-webkit-scrollbar{display:none}
+.rail a{flex:none;font:600 .82rem/1 var(--f-ui);text-decoration:none;color:var(--ink);padding:8px 12px;border:1px solid var(--line);border-radius:99px;background:var(--paper);white-space:nowrap}
+.rail a.done{border-color:var(--good);color:var(--good)}
+.rail a.done::before{content:"✓ "}
+section.law{padding-block:36px 10px;border-bottom:1px solid var(--line);scroll-margin-top:60px}
+.law-head{display:grid;gap:6px}
+.law-num{font:800 3.2rem/0.9 var(--f-display);color:var(--accent);letter-spacing:-.04em}
+.statement{font:italic 1.15rem/1.55 var(--f-body);border-left:3px solid var(--accent);padding:4px 0 4px 14px;margin:14px 0}
+.mj{overflow-x:auto;overflow-y:hidden;padding-block:2px}
+.box{border-radius:8px;padding:12px 14px;margin:1em 0;font-size:.97rem}
+.box > :first-child{margin-top:0}.box > :last-child{margin-bottom:0}
+.box.remember{background:var(--note-soft);border:1px solid color-mix(in srgb,var(--note) 30%,transparent)}
+.box.remember::before{content:"Να θυμάσαι";display:block;font:600 .72rem/1 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--note);margin-bottom:6px}
+.box.myth{background:var(--bad-soft);border:1px solid color-mix(in srgb,var(--bad) 30%,transparent)}
+.box.myth::before{content:"Συνηθισμένη παρανόηση";display:block;font:600 .72rem/1 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--bad);margin-bottom:6px}
+.box.goals{background:var(--paper);border:1px solid var(--line);margin:4px 0}
+.box.goals::before{content:"Μαθησιακοί στόχοι · μετά από αυτό το κεφάλαιο";display:block;font:600 .72rem/1 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.box.goals ul{margin:0;padding-left:1.2em;font:.92rem/1.5 var(--f-ui);display:grid;gap:4px}
+.box.deriv{background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 25%,transparent)}
+ul,ol{padding-left:1.3em}
+li{margin:.3em 0}
+ol.method{counter-reset:st;list-style:none;padding:0;display:grid;gap:8px}
+ol.method li{counter-increment:st;position:relative;padding:10px 12px 10px 46px;background:var(--paper);border:1px solid var(--line);border-radius:8px;margin:0;font-size:.97rem}
+ol.method li::before{content:counter(st);position:absolute;left:12px;top:10px;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font:700 .8rem/24px var(--f-ui);text-align:center}
+.lvl{font:600 .78rem/1 var(--f-ui);color:var(--note);letter-spacing:.05em;margin-left:auto}
+.seg{gap:0}
+.seg button{border-radius:0}
+.seg button:first-child{border-radius:6px 0 0 6px}
+.seg button:last-child{border-radius:0 6px 6px 0;margin-left:-1px}
+.bench{background:var(--paper);border:1px solid var(--line);border-radius:10px;margin:1.4em 0;overflow:hidden}
+.bench-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--accent-soft)}
+.bench-head h4{font-size:.95rem;color:var(--accent)}
+.bench-head h4 small{font-weight:500;color:var(--muted)}
+.bench-body{padding:14px;display:grid;gap:12px;font:.92rem/1.5 var(--f-ui)}
+.bench canvas{width:100%;display:block;border-radius:6px;background:var(--stage);border:1px solid var(--line);touch-action:manipulation}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px 16px}
+.ctl{display:grid;gap:3px;min-width:0}
+.ctl label{display:flex;justify-content:space-between;gap:8px;font-size:.84rem;color:var(--muted)}
+.ctl output{font-family:var(--f-mono);color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=text]{font:500 .95rem var(--f-mono);padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
+.btns{display:flex;flex-wrap:wrap;gap:6px}
+button{font:600 .85rem/1 var(--f-ui);padding:10px 13px;border-radius:6px;border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.ro{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;min-width:0}
+.ro span{display:block;font-size:.74rem;color:var(--muted)}
+.ro b{font:500 1.02rem var(--f-mono);font-variant-numeric:tabular-nums}
+.ro.hi{border-color:var(--accent);background:var(--accent-soft)}
+.hint{font-size:.84rem;color:var(--muted);margin:0}
+.learned{display:flex;align-items:center;gap:10px;margin:18px 0 6px;font:600 .9rem var(--f-ui)}
+.learned input{width:20px;height:20px;accent-color:var(--good)}
+.ex{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px;margin:14px 0}
+.ex h3{margin:0 0 4px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.tag{font:600 .72rem/1 var(--f-ui);padding:4px 7px;border-radius:4px;background:var(--accent-soft);color:var(--accent)}
+.tag.ok{background:var(--good-soft);color:var(--good)}
+.answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:10px 0}
+.answers label{display:grid;gap:3px;font:.82rem var(--f-ui);color:var(--muted)}
+.answers input.ok{border-color:var(--good);background:var(--good-soft)}
+.answers input.bad{border-color:var(--bad);background:var(--bad-soft)}
+.feedback{font:.88rem var(--f-ui);margin-top:6px;min-height:1.2em}
+details{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}
+summary{cursor:pointer;font:600 .88rem var(--f-ui);color:var(--accent)}
+details ol{padding-left:1.2em;margin:.6em 0;font-size:.95rem}
+.q{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px;margin:12px 0}
+.q p{margin:0 0 8px;font:600 .96rem/1.45 var(--f-ui)}
+.opts{display:grid;gap:6px}
+.opts button{text-align:left;line-height:1.35;font-weight:500;font-size:.9rem}
+.opts button.right{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+.opts button.wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.why{font:.88rem/1.5 var(--f-ui);color:var(--muted);margin-top:8px}
+.score{font:600 1rem var(--f-ui);color:var(--muted)}
+.sheet{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:10px}
+.sheet > div{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-width:0}
+.sheet h4{font-size:.85rem;color:var(--muted)}
+footer{font:.82rem/1.5 var(--f-ui);color:var(--muted);padding-top:24px}
+
+/* ===== LaTeX book typography ===== */
+:root{--f-display:"CMU Serif","Latin Modern Roman",Georgia,serif;--f-body:"CMU Serif","Latin Modern Roman",Georgia,serif;--f-ui:"CMU Sans","Latin Modern Sans",system-ui,sans-serif;--f-mono:"CMU Typewriter",ui-monospace,Menlo,monospace}
+body{font:18px/1.55 var(--f-body);font-kerning:normal;text-rendering:optimizeLegibility}
+main.wrap,.wrap{max-width:700px}
+main{counter-reset:chap}
+section.law{border-bottom:0;padding-block:44px 8px}
+section.law[data-ch]{counter-increment:chap;counter-reset:sec exm lab}
+.law-head{gap:2px;margin-bottom:14px}
+.chap{font:400 .95rem/1 var(--f-body);font-variant:small-caps;letter-spacing:.12em;color:var(--muted)}
+.chap::after{content:"";display:block;width:56px;height:1px;background:var(--ink);opacity:.5;margin-top:10px}
+h1,h2,h3,h4{color:var(--ink);text-wrap:balance}
+h2{font:700 1.85rem/1.2 var(--f-display);letter-spacing:-.005em}
+section.law > h3, section.law > h3[id]{font:700 1.2rem/1.3 var(--f-display);margin:1.7em 0 .45em}
+section.law[data-ch] > h3{counter-increment:sec}
+section.law[data-ch] > h3::before{content:counter(chap) "." counter(sec);display:inline-block;min-width:2.6em;font-weight:700}
+section.law > p{margin:0;text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+section.law > p + p{text-indent:1.5em}
+section.law > p.hint{text-indent:0;margin:.6em 0;text-align:left}
+section.law ul,section.law ol:not(.method){text-align:justify;hyphens:auto;margin:.5em 0}
+.mj{margin:.55em 0}
+.hint,.ctl,.bench-body,.readout,.btns,.legend,.progress,.rail a,.tag,.lvl,.feedback,summary,.answers label,.q p,.opts button,.why,.score,footer,.eyebrow{font-family:var(--f-ui)}
+.ro b,.ctl output,input[type=text]{font-family:var(--f-mono)}
+/* title page */
+.hero{text-align:center;justify-items:center;padding-block:46px 18px;gap:10px}
+.hero .eyebrow{font:400 .95rem var(--f-body);font-variant:small-caps;letter-spacing:.14em;text-transform:none}
+.hero h1{font:400 clamp(2.1rem,7vw,2.8rem)/1.1 var(--f-display);letter-spacing:-.01em}
+.hero .subtitle{font:italic 1.1rem var(--f-body);color:var(--muted);margin:0}
+.hero > p{text-align:justify;hyphens:auto;max-width:60ch}
+.hero .legend,.hero .progress{justify-content:center}
+.box.goals{text-align:left;max-width:60ch;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:0;background:transparent;padding:12px 2px}
+.box.goals::before{content:"Στόχοι";text-align:center;font:700 .95rem var(--f-body);letter-spacing:.06em;text-transform:none;color:var(--ink);font-variant:small-caps}
+.box.goals ul{font:1rem/1.5 var(--f-body)}
+/* table of contents */
+.toc{max-width:700px;margin:8px auto 0;padding:18px 0 4px;font-family:var(--f-body)}
+.toc h2{font:700 1.4rem var(--f-display);margin-bottom:10px}
+.toc a{display:flex;gap:8px;text-decoration:none;color:var(--ink);padding:3px 0;align-items:baseline}
+.toc a .n{min-width:2.6em}
+.toc a.ch{font-weight:700;margin-top:10px}
+.toc a.sub{padding-left:1.6em;font-size:.97rem}
+.toc a .dots{flex:1;border-bottom:1px dotted var(--muted);transform:translateY(-4px);opacity:.6}
+.toc a:hover .t{color:var(--accent)}
+/* theorem-like environments */
+.thm{margin:1em 0;padding:10px 14px;border-left:3px solid var(--accent);background:color-mix(in srgb,var(--accent-soft) 55%,transparent);border-radius:0 6px 6px 0;text-align:justify;hyphens:auto}
+.thm-h{font-weight:700;font-style:normal}
+.thm-n{font-weight:400}
+.thm i{font-style:italic}
+.box{font:1rem/1.55 var(--f-body);text-align:justify;hyphens:auto;border-radius:0 6px 6px 0}
+.box::before{font:700 .95rem/1.2 var(--f-body)!important;letter-spacing:.02em!important;text-transform:none!important;font-variant:small-caps;margin-bottom:4px!important;display:block}
+.box.remark{background:transparent;border:0;border-left:2px solid var(--muted);padding:6px 14px}
+.box.remark::before{content:"Παρατήρηση";color:var(--ink)}
+.box.myth{border:0;border-left:3px solid var(--bad);padding:8px 14px}
+.box.myth::before{content:"Συνηθισμένο λάθος";color:var(--bad)}
+section.law[data-ch] .box.deriv{counter-increment:exm}
+.box.deriv{background:transparent;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:0;padding:10px 2px}
+section.law[data-ch] .box.deriv::before{content:"Παράδειγμα " counter(chap) "." counter(exm);color:var(--ink)}
+.box.summary{background:transparent;border:0;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);border-radius:0;padding:10px 2px;margin-top:1.6em}
+section.law[data-ch] .box.summary::before{content:"Σύνοψη κεφαλαίου " counter(chap);color:var(--ink)}
+.box.summary ul{margin:.2em 0;padding-left:1.2em}
+p.bridge{font-style:italic;text-indent:0!important;margin:1em 0 0!important;color:var(--ink)}
+p.bridge::before{content:"⁂";display:block;text-align:center;font-style:normal;color:var(--muted);margin-bottom:.4em;letter-spacing:.3em}
+ol.method li{font-family:var(--f-body);font-size:1rem;text-align:justify}
+/* labs: numbered as Εργαστήριο c.k */
+section.law[data-ch] .bench{counter-increment:lab}
+.bench-head{background:transparent;border-bottom:1px solid var(--line)}
+.bench-head h4{font:700 1rem var(--f-body);color:var(--ink)}
+section.law[data-ch] .bench-head h4::before{content:"Εργαστήριο " counter(chap) "." counter(lab) " · ";color:var(--accent)}
+.bench-head h4 small{font:italic 400 .92rem var(--f-body)}
+.ex h3{font:700 1.05rem var(--f-display)}
+.ex p,.ex li{font:1rem/1.55 var(--f-body);text-align:justify;hyphens:auto}
+.sheet h4{font:700 .95rem var(--f-body);font-variant:small-caps;color:var(--ink)}
+.law-num{display:none}
+nav.rail{background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(6px)}
+footer{font:italic .9rem/1.5 var(--f-body)}
+.hero .subtitle{text-align:center!important}
+.hero .progress{width:100%;max-width:380px}
+@media (max-width:560px){section.law > p,.hero > p,section.law ul,section.law ol:not(.method),.box,.thm,.ex p,.ex li,ol.method li{text-align:left}}
+
+/* ===== EB Garamond + Source Sans 3 (as in the reference notes) ===== */
+:root{--f-display:"EB Garamond","Noto Serif",Georgia,serif;--f-body:"Source Sans 3","Segoe UI",Calibri,system-ui,sans-serif;--f-ui:"Source Sans 3","Segoe UI",system-ui,sans-serif;--f-mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+body{font:17.5px/1.7 var(--f-body)}
+h2{font:600 2rem/1.15 var(--f-display);letter-spacing:0}
+section.law > h3, section.law > h3[id]{font:600 1.45rem/1.25 var(--f-display);margin:1.8em 0 .5em}
+section.law[data-ch] > h3::before{min-width:0;margin-right:.35em;font-weight:600}
+section.law > p{margin:.75em 0;text-align:left!important;hyphens:manual}
+section.law > p + p{text-indent:0}
+section.law ul,section.law ol:not(.method){text-align:left}
+.chap{font:600 .78rem/1 var(--f-ui);font-variant:normal;text-transform:uppercase;letter-spacing:.2em;color:var(--accent)}
+.chap::after{display:none}
+.hero h1{font:500 clamp(2.2rem,7vw,3rem)/1.1 var(--f-display)}
+.hero .eyebrow{font:600 .78rem var(--f-ui);text-transform:uppercase;letter-spacing:.2em;color:var(--accent);font-variant:normal}
+.hero .subtitle{font:400 1.15rem var(--f-ui);font-style:normal}
+.box.goals::before,.box::before{font-family:var(--f-ui)!important;font-variant:normal!important;text-transform:uppercase!important;letter-spacing:.16em!important;font-size:.72rem!important}
+.box,.thm,.ex p,.ex li,ol.method li,.box.goals ul{font-family:var(--f-body);text-align:left!important}
+.thm-h{font-family:var(--f-display);font-size:1.12rem}
+.thm i{font-family:var(--f-display);font-size:1.1rem}
+.bench-head h4,.ex h3,.sheet h4,.toc h2,.toc a{font-family:var(--f-display)}
+.bench-head h4{font-size:1.08rem;font-weight:600}
+.bench-head h4 small{font-family:var(--f-ui);font-style:normal}
+.toc a{font-size:1.05rem}
+p.bridge{font-family:var(--f-display);font-size:1.12rem}
+footer{font-family:var(--f-ui);font-style:normal}
+/* ===== left contents tree ===== */
+.tree{position:fixed;top:0;left:0;bottom:0;width:280px;z-index:30;background:var(--paper);border-right:1px solid var(--line);overflow:auto;padding:18px 14px 40px;font:15px/1.4 var(--f-ui);transform:translateX(-102%);transition:transform .25s ease;box-shadow:none}
+.tree.open{transform:none;box-shadow:0 10px 40px -10px rgb(0 0 0/.35)}
+.tree h2{font:600 1.35rem var(--f-display);margin:2px 4px 12px;display:flex;justify-content:space-between;align-items:center}
+.tree h2 button{font:600 1.2rem var(--f-ui);border:0;background:transparent;color:var(--muted);padding:4px 8px}
+.tree details{margin:2px 0}
+.tree summary{list-style:none;display:flex;gap:8px;align-items:baseline;padding:6px 8px;border-radius:6px;cursor:pointer;font:600 .98rem var(--f-ui);color:var(--ink)}
+.tree summary::-webkit-details-marker{display:none}
+.tree summary::before{content:"▸";font-size:.8rem;color:var(--muted);transition:transform .15s;display:inline-block;width:.8em}
+.tree details[open] > summary::before{transform:rotate(90deg)}
+.tree summary .n{color:var(--accent);min-width:1.2em}
+.tree a{display:flex;gap:8px;padding:5px 8px 5px 30px;border-radius:6px;color:var(--ink-soft,var(--ink));text-decoration:none;font-size:.93rem}
+.tree a .n{color:var(--muted);min-width:2.2em;font-variant-numeric:tabular-nums}
+.tree a.top{padding-left:8px;font-weight:600;font-size:.98rem}
+.tree a:hover,.tree summary:hover{background:var(--accent-soft)}
+.tree a.active,.tree summary.active{background:var(--accent-soft);color:var(--accent)}
+.tree a.active .n{color:var(--accent)}
+.tree-btn{position:fixed;left:12px;bottom:16px;z-index:31;font:600 .9rem var(--f-ui);padding:11px 14px;border-radius:99px;border:1px solid var(--line);background:var(--paper);color:var(--ink);box-shadow:0 6px 20px -8px rgb(0 0 0/.35)}
+.tree-scrim{position:fixed;inset:0;z-index:29;background:rgb(0 0 0/.3);display:none}
+.tree-scrim.on{display:block}
+.tree.open ~ .tree-btn{display:none}
+@media (min-width:1150px){
+  .tree{transform:none;box-shadow:none}
+  .tree h2 button,.tree-btn,.tree-scrim{display:none!important}
+  body{padding-left:296px}
+  nav.rail{display:none}
+}
+@media print{.tree,.tree-btn,.tree-scrim{display:none!important}}
+</style>
+<style>
+.chapnav{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:28px 0 8px;font-family:var(--f-ui)}
+.chapnav a{display:inline-block;padding:10px 14px;border:1px solid var(--line);border-radius:6px;color:var(--accent);text-decoration:none;font-weight:600;background:var(--paper)}
+.chapnav a:hover{border-color:var(--accent)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header class="hero">
+  <span class="eyebrow">Φυσική Ι · Δυναμική υλικού σημείου</span>
+  <h1>Έργο και ενέργεια</h1>
+  <p class="subtitle">Σημειώσεις παραδόσεων με διαδραστικά εργαστήρια</p>
+  <p>Συνέχεια των σημειώσεων «Οι νόμοι του Νεύτωνα». Εκεί ολοκληρώσαμε τον 2ο νόμο ως προς τον χρόνο και βρήκαμε την ορμή. Εδώ τον ολοκληρώνουμε ως προς τη <b>θέση</b>, και προκύπτουν οι έννοιες του έργου και της ενέργειας. Το πρώτο κεφάλαιο ορίζει το έργο. Το δεύτερο δείχνει πώς αλλάζει την κινητική ενέργεια. Το τρίτο ξεχωρίζει τις δυνάμεις που «αποθηκεύουν» έργο ως δυναμική ενέργεια. Το τέταρτο καταλήγει στη διατήρηση της ενέργειας και στην ισχύ, την έννοια που χρησιμοποιεί καθημερινά ο μηχανικός.</p>
+  <div class="box goals">
+    <ul>
+      <li>Υπολογίζεις το έργο σταθερής και μεταβλητής δύναμης, και το ερμηνεύεις ως εμβαδόν κάτω από την καμπύλη F–x.</li>
+      <li>Εφαρμόζεις το θεώρημα έργου–ενέργειας σε προβλήματα όπου ο χρόνος δεν ενδιαφέρει.</li>
+      <li>Ξεχωρίζεις συντηρητικές από μη συντηρητικές δυνάμεις και ορίζεις τη δυναμική ενέργεια.</li>
+      <li>Διαβάζεις ένα διάγραμμα δυναμικής ενέργειας: σημεία ισορροπίας, ευστάθεια, σημεία αναστροφής.</li>
+      <li>Λύνεις προβλήματα με διατήρηση ενέργειας, με και χωρίς τριβές, και υπολογίζεις ισχύ και βαθμό απόδοσης.</li>
+    </ul>
+  </div>
+  <p class="hint">Προαπαιτούμενα: οι νόμοι του Νεύτωνα, εσωτερικό γινόμενο διανυσμάτων, απλά ολοκληρώματα. Μονάδες SI, \(g=9.81\) m/s².</p>
+  <div class="legend" aria-label="Χρώματα ενέργειας">
+    <span style="color:var(--f-app)"><i style="background:var(--f-app)"></i>Κινητική K</span>
+    <span style="color:var(--f-norm)"><i style="background:var(--f-norm)"></i>Δυναμική βαρύτητας U<sub>g</sub></span>
+    <span style="color:var(--f-wt)"><i style="background:var(--f-wt)"></i>Ελαστική U<sub>ελ</sub></span>
+    <span style="color:var(--f-fric)"><i style="background:var(--f-fric)"></i>Θερμότητα Q (τριβή)</span>
+  </div>
+  <div class="progress"><span id="progText">0 από 4 κεφάλαια</span><div class="bar"><i id="progBar"></i></div></div>
+</header>
+</div>
+
+<aside class="tree" id="tree" aria-label="Περιεχόμενα"><h2>Περιεχόμενα <button type="button" id="treeClose" aria-label="Κλείσιμο">✕</button></h2><div id="treeBody"></div></aside>
+<div class="tree-scrim" id="treeScrim"></div>
+<button type="button" class="tree-btn" id="treeBtn" aria-controls="tree">☰ Περιεχόμενα</button>
+<nav class="rail" aria-label="Ενότητες">
+  <div class="rail-inner">
+    <a href="#ch1" data-sec="ch1">1 · Έργο</a>
+    <a href="#ch2" data-sec="ch2">2 · Κινητική ενέργεια</a>
+    <a href="#ch3" data-sec="ch3">3 · Δυναμική ενέργεια</a>
+    <a href="#ch4" data-sec="ch4">4 · Διατήρηση & ισχύς</a>
+    <a href="#ask">Ασκήσεις</a>
+    <a href="#quiz">Κουίζ</a>
+    <a href="#sheet">Τυπολόγιο</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ================= 1 ================= -->
+<section class="law" id="ch1" data-ch="1">
+  <div class="law-head"><span class="chap">Κεφάλαιο 1</span><h2>Το έργο μιας δύναμης</h2></div>
+  <p>Ο 2ος νόμος περιγράφει πώς αλλάζει η κίνηση <i>από στιγμή σε στιγμή</i>. Συχνά όμως μας ενδιαφέρει κάτι πιο συνολικό: πόσο άλλαξε η ταχύτητα ενός σώματος καθώς μετακινήθηκε από ένα σημείο σε ένα άλλο, χωρίς να μας νοιάζει πόσο χρόνο πήρε. Το μέγεθος που απαντά σε αυτό είναι το <b>έργο</b>.</p>
+  <div class="thm"><span class="thm-h">Ορισμός 1 <span class="thm-n">(έργο σταθερής δύναμης)</span>.</span> <i>Το έργο μιας σταθερής δύναμης \(\vec F\) που ασκείται σε σώμα το οποίο μετατοπίζεται κατά \(\Delta\vec r\) είναι το εσωτερικό γινόμενο της δύναμης με τη μετατόπιση.</i></div>
+  <div class="mj">\[W=\vec F\cdot\Delta\vec r=F\,\Delta r\cos\theta,\qquad 1\ \text{J}=1\ \text{N}\cdot\text{m}\tag{1.1}\]</div>
+  <p>Το έργο είναι <b>βαθμωτό</b> μέγεθος και μπορεί να είναι θετικό, αρνητικό ή μηδέν. Είναι θετικό όταν η δύναμη έχει συνιστώσα κατά τη φορά της κίνησης (\(\theta<90^\circ\)), αρνητικό όταν «αντιστέκεται» (\(\theta>90^\circ\)), όπως η τριβή, και μηδέν όταν είναι κάθετη στη μετατόπιση. Γι' αυτό η κάθετη αντίδραση σε οριζόντιο δάπεδο και η κεντρομόλος δύναμη σε κυκλική τροχιά δεν παράγουν έργο.</p>
+
+  <h3>Μεταβλητή δύναμη σε τυχαία τροχιά</h3>
+  <p>Αν η δύναμη αλλάζει ή η τροχιά είναι καμπύλη, χωρίζουμε τη διαδρομή σε στοιχειώδεις μετατοπίσεις \(d\vec r\), όπου η δύναμη είναι πρακτικά σταθερή, και αθροίζουμε:</p>
+  <div class="mj">\[W_{A\to B}=\int_A^B\vec F\cdot d\vec r\qquad\xrightarrow{\ \text{μία διάσταση}\ }\qquad W=\int_{x_1}^{x_2}F_x(x)\,dx\tag{1.2}\]</div>
+  <p>Σε μία διάσταση, το έργο είναι το <b>εμβαδόν κάτω από την καμπύλη \(F_x(x)\)</b>, με πρόσημο: εμβαδόν κάτω από τον άξονα μετράει αρνητικά. Η γεωμετρική αυτή εικόνα είναι συχνά ο γρηγορότερος τρόπος υπολογισμού.</p>
+
+  <h3>Τρία έργα που πρέπει να ξέρεις</h3>
+  <ul>
+    <li><b>Βάρος:</b> μόνο η κατακόρυφη μετατόπιση μετράει, \(W_g=-mg\,(y_2-y_1)\). Όταν το σώμα κατεβαίνει, το έργο είναι θετικό.</li>
+    <li><b>Τριβή ολίσθησης:</b> \(W_f=-\mu_kN\,s\), όπου \(s\) το <i>μήκος της διαδρομής</i> και όχι η μετατόπιση. Είναι πάντα αρνητικό.</li>
+    <li><b>Ελατήριο:</b> με \(F=-kx\) από \(x_1\) σε \(x_2\), \(W_{ελ}=-\tfrac12k\left(x_2^2-x_1^2\right)\). Είναι το εμβαδόν ενός τριγώνου στο διάγραμμα F–x.</li>
+  </ul>
+  <div class="box deriv"><p>Κιβώτιο 20 kg σύρεται 10 m σε οριζόντιο δάπεδο με σχοινί που ασκεί 100 N υπό γωνία 30°, με \(\mu_k=0.2\). Το έργο του σχοινιού είναι \(W_F=100\cdot10\cos30^\circ=866\) J. Η κάθετη αντίδραση είναι \(N=mg-F\sin30^\circ=146.2\) N, οπότε \(W_f=-0.2\cdot146.2\cdot10=-292\) J. Βάρος και κάθετη δεν παράγουν έργο. Συνολικό έργο: \(W_{ολ}=574\) J. Στο επόμενο κεφάλαιο θα δούμε σε τι «πήγε» αυτό το έργο.</p></div>
+
+  <div class="bench">
+    <div class="bench-head"><h4>Το έργο ως εμβαδόν <small>· κιβώτιο που σύρεται με τριβή</small></h4></div>
+    <div class="bench-body">
+      <canvas id="cW" height="170" aria-label="Κιβώτιο που σύρεται με σχοινί υπό γωνία"></canvas>
+      <canvas id="gW" height="160" aria-label="Διάγραμμα δύναμης-θέσης με σκιασμένο το έργο"></canvas>
+      <div class="controls">
+        <div class="ctl"><label for="wF"><span>Δύναμη F </span><output id="owF"></output></label><input id="wF" type="range" min="0" max="300" step="5" value="100"></div>
+        <div class="ctl"><label for="wT"><span>Γωνία θ </span><output id="owT"></output></label><input id="wT" type="range" min="0" max="80" step="1" value="30"></div>
+        <div class="ctl"><label for="wM"><span>Μάζα m </span><output id="owM"></output></label><input id="wM" type="range" min="5" max="60" step="1" value="20"></div>
+        <div class="ctl"><label for="wMu"><span>μ<sub>k</sub> </span><output id="owMu"></output></label><input id="wMu" type="range" min="0" max="0.6" step="0.01" value="0.2"></div>
+      </div>
+      <div class="btns"><button type="button" class="primary" id="wGo">Τράβηξε 10 m</button><button type="button" id="wReset">Από την αρχή</button></div>
+      <div class="readout" id="wOut"></div>
+      <p class="hint">Στο διάγραμμα, το μπλε εμβαδόν είναι το έργο της οριζόντιας συνιστώσας της F, και το πορτοκαλί, κάτω από τον άξονα, το αρνητικό έργο της τριβής. Αύξησε τη γωνία: η οριζόντια συνιστώσα μικραίνει, αλλά μικραίνει και η κάθετη αντίδραση, άρα και η τριβή. Υπάρχει βέλτιστη γωνία, με \(\tan\theta=\mu_k\).</p>
+    </div>
+  </div>
+  <div class="box myth"><p>«Κουβαλάω ένα βαρύ κιβώτιο οριζόντια, άρα κάνω έργο.» Η δύναμη που ασκείς για να το κρατάς είναι κατακόρυφη και η μετατόπιση οριζόντια, οπότε το έργο της είναι μηδέν. Το ότι κουράζεσαι οφείλεται στη μυϊκή λειτουργία, όχι σε μηχανικό έργο πάνω στο κιβώτιο.</p></div>
+  <div class="box summary"><ul><li>Το έργο είναι \(W=\int\vec F\cdot d\vec r\), βαθμωτό και με πρόσημο. Δυνάμεις κάθετες στην κίνηση δεν παράγουν έργο.</li><li>Σε μία διάσταση το έργο είναι το εμβαδόν κάτω από την καμπύλη \(F_x(x)\).</li><li>Το έργο του βάρους εξαρτάται μόνο από την υψομετρική διαφορά, ενώ της τριβής από το μήκος της διαδρομής. Η διαφορά αυτή θα αποδειχθεί θεμελιώδης.</li></ul></div>
+  <p class="bridge">Ξέρουμε τώρα να υπολογίζουμε το έργο, αλλά όχι ακόμα τι κάνει. Το επόμενο κεφάλαιο δείχνει ότι το συνολικό έργο πάνω σε ένα σώμα έχει ένα πολύ συγκεκριμένο αποτέλεσμα: αλλάζει την κινητική του ενέργεια.</p>
+  <label class="learned"><input type="checkbox" data-learn="ch1"> Κατάλαβα το κεφάλαιο 1</label>
+</section>
+
+<!-- ================= 2 ================= -->
+<section class="law" id="ch2" data-ch="2">
+  <div class="law-head"><span class="chap">Κεφάλαιο 2</span><h2>Κινητική ενέργεια και θεώρημα έργου–ενέργειας</h2></div>
+  <div class="thm"><span class="thm-h">Θεώρημα 2 <span class="thm-n">(έργο–ενέργεια)</span>.</span> <i>Το έργο της συνισταμένης όλων των δυνάμεων που ασκούνται σε ένα σώμα ισούται με τη μεταβολή της κινητικής του ενέργειας.</i></div>
+  <div class="mj">\[W_{ολ}=\Delta K=\tfrac12mv_2^2-\tfrac12mv_1^2,\qquad K=\tfrac12mv^2\tag{2.1}\]</div>
+
+  <h3>Απόδειξη από τον 2ο νόμο</h3>
+  <p>Σε μία διάσταση, γράφουμε την επιτάχυνση με τον κανόνα της αλυσίδας, \(a=\dfrac{dv}{dt}=\dfrac{dv}{dx}\dfrac{dx}{dt}=v\dfrac{dv}{dx}\). Τότε:</p>
+  <div class="mj">\[\sum F=m\,v\frac{dv}{dx}\quad\Longrightarrow\quad\int_{x_1}^{x_2}\sum F\,dx=\int_{v_1}^{v_2}m\,v\,dv=\tfrac12mv_2^2-\tfrac12mv_1^2\tag{2.2}\]</div>
+  <p>Σε τρεις διαστάσεις η απόδειξη είναι ίδια, με \(\vec F\cdot d\vec r=m\,\dfrac{d\vec v}{dt}\cdot\vec v\,dt=d\!\left(\tfrac12mv^2\right)\). Το θεώρημα λοιπόν <b>δεν είναι νέος νόμος</b>: είναι ο 2ος νόμος ολοκληρωμένος ως προς τη θέση. Ακριβώς όπως η ώθηση \(\int\vec F\,dt=\Delta\vec p\) ήταν ο 2ος νόμος ολοκληρωμένος ως προς τον χρόνο.</p>
+
+  <h3>Πότε το προτιμάμε</h3>
+  <p>Όταν το πρόβλημα ρωτάει για ταχύτητες σε θέσεις και όχι για χρόνους. Το θεώρημα παρακάμπτει την επιτάχυνση και τον χρόνο εντελώς, και δουλεύει με βαθμωτά μεγέθη, οπότε δεν χρειάζεται ανάλυση σε συνιστώσες. Πολύ δυνατό είναι όταν η δύναμη εξαρτάται από τη θέση, όπως στο ελατήριο, όπου ο 2ος νόμος θα απαιτούσε επίλυση διαφορικής εξίσωσης.</p>
+  <div class="box deriv"><p><b>Απόσταση φρεναρίσματος.</b> Αυτοκίνητο με ταχύτητα \(v_0\) φρενάρει με μπλοκαρισμένους τροχούς. Η μόνη δύναμη που παράγει έργο είναι η τριβή: \(-\mu_kmg\,s=0-\tfrac12mv_0^2\), άρα</p>
+    <div class="mj">\[s=\frac{v_0^2}{2\mu_kg}\tag{2.3}\]</div>
+    <p>Η απόσταση είναι ανεξάρτητη από τη μάζα και ανάλογη του τετραγώνου της ταχύτητας. Στα 90 km/h με \(\mu_k=0.7\) είναι 45.5 m, και στα 130 km/h είναι 95 m: 44% περισσότερη ταχύτητα, αλλά υπερδιπλάσια απόσταση.</p></div>
+
+  <div class="bench">
+    <div class="bench-head"><h4>Φρενάρισμα <small>· η κινητική ενέργεια «καταναλώνεται» από την τριβή</small></h4></div>
+    <div class="bench-body">
+      <canvas id="cB" height="200" aria-label="Δύο αυτοκίνητα που φρενάρουν"></canvas>
+      <canvas id="gB" height="150" aria-label="Κινητική ενέργεια ως προς την απόσταση"></canvas>
+      <div class="controls">
+        <div class="ctl"><label for="bV"><span>Αρχική ταχύτητα v₀ </span><output id="obV"></output></label><input id="bV" type="range" min="20" max="140" step="5" value="90"></div>
+        <div class="ctl"><label for="bMu"><span>μ<sub>k</sub> (στεγνό ≈ 0.7, βρεγμένο ≈ 0.4, χιόνι ≈ 0.15) </span><output id="obMu"></output></label><input id="bMu" type="range" min="0.1" max="0.9" step="0.05" value="0.7"></div>
+        <div class="ctl"><label for="bM"><span>Μάζα </span><output id="obM"></output></label><input id="bM" type="range" min="800" max="3000" step="100" value="1200"></div>
+      </div>
+      <div class="btns"><button type="button" class="primary" id="bGo">Φρένο!</button><button type="button" id="bDbl" aria-pressed="true">Δεύτερο αυτοκίνητο με 2·v₀</button><button type="button" id="bReset">Από την αρχή</button></div>
+      <div class="readout" id="bOut"></div>
+      <p class="hint">Η κινητική ενέργεια μειώνεται <b>γραμμικά με την απόσταση</b>, γιατί η τριβή είναι σταθερή. Η ταχύτητα όμως όχι. Το δεύτερο αυτοκίνητο, με διπλάσια ταχύτητα, έχει τετραπλάσια ενέργεια και θέλει τετραπλάσια απόσταση. Η μάζα δεν επηρεάζει την απόσταση: η διπλάσια ενέργεια «τρώγεται» από διπλάσια τριβή.</p>
+    </div>
+  </div>
+  <div class="box remark"><p>Το θεώρημα ισχύει για το <b>συνολικό</b> έργο. Ένα συχνό λάθος είναι να μετρήσεις μόνο το έργο της «κύριας» δύναμης. Στο παράδειγμα του κεφαλαίου 1, τα 574 J του συνολικού έργου είναι η κινητική ενέργεια που απέκτησε το κιβώτιο. Αν ξεκίνησε από ηρεμία, έχει \(v=\sqrt{2\cdot574/20}=7.6\) m/s.</p></div>
+  <div class="box summary"><ul><li>\(K=\tfrac12mv^2\), και \(W_{ολ}=\Delta K\) είναι ο 2ος νόμος ολοκληρωμένος ως προς τη θέση.</li><li>Χρησιμοποιείται όταν ζητούνται ταχύτητες σε θέσεις και όχι χρόνοι, ιδίως με δυνάμεις που εξαρτώνται από τη θέση.</li><li>Η απόσταση φρεναρίσματος \(v_0^2/(2\mu g)\) δείχνει τη χαρακτηριστική εξάρτηση από το \(v^2\).</li></ul></div>
+  <p class="bridge">Στο φρενάρισμα η κινητική ενέργεια χάθηκε οριστικά, έγινε θερμότητα στα λάστιχα και στον δρόμο. Όταν όμως πετάμε μια μπάλα προς τα πάνω, η κινητική ενέργεια που χάνει το βάρος την «επιστρέφει» στην κάθοδο. Το επόμενο κεφάλαιο εξηγεί αυτή τη διαφορά.</p>
+  <label class="learned"><input type="checkbox" data-learn="ch2"> Κατάλαβα το κεφάλαιο 2</label>
+</section>
+
+<!-- ================= 3 ================= -->
+<section class="law" id="ch3" data-ch="3">
+  <div class="law-head"><span class="chap">Κεφάλαιο 3</span><h2>Συντηρητικές δυνάμεις και δυναμική ενέργεια</h2></div>
+  <p>Στο κεφάλαιο 1 είδαμε ότι το έργο του βάρους εξαρτάται μόνο από το αρχικό και το τελικό ύψος, ενώ το έργο της τριβής από το μήκος της διαδρομής. Αυτή η διαφορά χωρίζει τις δυνάμεις σε δύο μεγάλες κατηγορίες.</p>
+  <div class="thm"><span class="thm-h">Ορισμός 3 <span class="thm-n">(συντηρητική δύναμη)</span>.</span> <i>Μια δύναμη λέγεται συντηρητική όταν το έργο της από ένα σημείο Α σε ένα σημείο Β είναι το ίδιο για κάθε διαδρομή. Ισοδύναμα, όταν το έργο της σε κάθε κλειστή διαδρομή είναι μηδέν.</i></div>
+  <div class="mj">\[\oint\vec F\cdot d\vec r=0\tag{3.1}\]</div>
+  <p>Συντηρητικές είναι η βαρύτητα, η δύναμη του ελατηρίου και η ηλεκτροστατική. Μη συντηρητικές είναι η τριβή, η αντίσταση του αέρα και γενικά κάθε δύναμη που μετατρέπει μηχανική ενέργεια σε θερμότητα.</p>
+
+  <h3>Ανεξαρτησία δρόμου</h3>
+  <p>Ένα κιβώτιο μεταφέρεται από ένα ψηλό σημείο Α σε ένα χαμηλότερο Β με τρεις διαφορετικούς δρόμους. Το έργο του βάρους είναι πάντα \(mgh\). Το έργο της τριβής, σε κεκλιμένο τμήμα μήκους \(L\) και κλίσης \(\theta\), είναι \(-\mu mg\cos\theta\cdot L=-\mu mg\,\Delta x\): εξαρτάται από τη συνολική <i>οριζόντια</i> απόσταση που διανύθηκε, άρα από τον δρόμο.</p>
+  <div class="bench">
+    <div class="bench-head"><h4>Τρεις δρόμοι από το Α στο Β <small>· βάρος έναντι τριβής</small></h4></div>
+    <div class="bench-body">
+      <canvas id="cP" height="220" aria-label="Τρεις διαδρομές από ένα σημείο σε ένα άλλο"></canvas>
+      <div class="btns seg" role="group" aria-label="Διαδρομή"><button type="button" class="pth" data-p="0" aria-pressed="true">Ευθεία</button><button type="button" class="pth" data-p="1" aria-pressed="false">Απότομη + ήπια</button><button type="button" class="pth" data-p="2" aria-pressed="false">Με παράκαμψη</button></div>
+      <div class="controls"><div class="ctl"><label for="pMu"><span>μ<sub>k</sub> </span><output id="opMu"></output></label><input id="pMu" type="range" min="0" max="0.5" step="0.01" value="0.2"></div></div>
+      <div class="btns"><button type="button" class="primary" id="pGo">Μετάφερε το κιβώτιο</button></div>
+      <div class="readout" id="pOut"></div>
+      <p class="hint">Μάζα 10 kg, υψομετρική διαφορά 6 m. Το έργο του βάρους είναι ίδιο και στους τρεις δρόμους. Της τριβής είναι ίδιο στους δύο πρώτους, γιατί έχουν την ίδια οριζόντια απόσταση, αλλά μεγαλύτερο στον τρίτο. Με μ = 0 και οι τρεις δρόμοι δίνουν ακριβώς το ίδιο.</p>
+    </div>
+  </div>
+
+  <h3>Δυναμική ενέργεια</h3>
+  <p>Επειδή το έργο μιας συντηρητικής δύναμης εξαρτάται μόνο από τα άκρα, μπορούμε να ορίσουμε μια συνάρτηση της θέσης, τη <b>δυναμική ενέργεια</b> \(U\), τέτοια ώστε:</p>
+  <div class="mj">\[W_{A\to B}^{\text{συντ}}=-\left(U_B-U_A\right)=-\Delta U\tag{3.2}\]</div>
+  <p>Η δυναμική ενέργεια ορίζεται ως προς ένα αυθαίρετο επίπεδο αναφοράς: μόνο οι <i>διαφορές</i> της έχουν φυσικό νόημα. Οι τρεις βασικές μορφές:</p>
+  <div class="mj">\[U_g=mgy,\qquad U_{ελ}=\tfrac12kx^2,\qquad U_G=-\frac{GMm}{r}\tag{3.3}\]</div>
+  <p>Η τελευταία είναι η βαρυτική δυναμική ενέργεια σε μεγάλες αποστάσεις από τη Γη, με αναφορά στο άπειρο. Κοντά στην επιφάνεια ανάγεται στο \(mgy\).</p>
+
+  <h3>Η δύναμη ως κλίση της δυναμικής ενέργειας</h3>
+  <p>Αντίστροφα, αν ξέρουμε το \(U\), βρίσκουμε τη δύναμη παραγωγίζοντας. Από \(dW=F\,dx=-dU\):</p>
+  <div class="mj">\[F_x=-\frac{dU}{dx}\qquad\xrightarrow{\ \text{3Δ}\ }\qquad\vec F=-\nabla U=-\left(\frac{\partial U}{\partial x},\frac{\partial U}{\partial y},\frac{\partial U}{\partial z}\right)\tag{3.4}\]</div>
+  <p>Η δύναμη «δείχνει» προς τα κάτω στην καμπύλη του δυναμικού, όπως μια μπίλια σε ανάγλυφο κυλάει προς το χαμηλότερο σημείο.</p>
+
+  <h3>Διαγράμματα δυναμικής ενέργειας</h3>
+  <p>Το διάγραμμα \(U(x)\) δίνει με μια ματιά όλη την ποιοτική εικόνα της κίνησης σε μία διάσταση:</p>
+  <ul>
+    <li><b>Σημεία ισορροπίας</b> είναι εκεί όπου \(dU/dx=0\), άρα \(F=0\). Στα <b>ελάχιστα</b> η ισορροπία είναι <b>ευσταθής</b> (\(d^2U/dx^2>0\)): μια μικρή απομάκρυνση δημιουργεί δύναμη επαναφοράς. Στα <b>μέγιστα</b> είναι <b>ασταθής</b>.</li>
+    <li>Με συνολική ενέργεια \(E\), ισχύει \(K=E-U(x)\ge0\). Το σώμα κινείται μόνο εκεί όπου \(U(x)\le E\). Τα σημεία όπου \(U=E\) είναι <b>σημεία αναστροφής</b>, όπου η ταχύτητα μηδενίζεται.</li>
+    <li>Κοντά σε ένα ελάχιστο, κάθε δυναμικό μοιάζει με παραβολή \(U\approx U_0+\tfrac12k_{\text{εφ}}(x-x_0)^2\). Γι' αυτό οι μικρές ταλαντώσεις είναι σχεδόν πάντα αρμονικές, κάτι που θα δούμε στο κεφάλαιο των ταλαντώσεων.</li>
+  </ul>
+  <div class="bench">
+    <div class="bench-head"><h4>Διάγραμμα δυναμικής ενέργειας <small>· άφησε το σωματίδιο και δες πού κινείται</small></h4></div>
+    <div class="bench-body">
+      <canvas id="cU" height="260" aria-label="Διάγραμμα δυναμικής ενέργειας με κινούμενο σωματίδιο"></canvas>
+      <div class="btns seg" role="group" aria-label="Δυναμικό"><button type="button" class="pot" data-u="0" aria-pressed="true">Διπλό πηγάδι</button><button type="button" class="pot" data-u="1" aria-pressed="false">Ελατήριο</button><button type="button" class="pot" data-u="2" aria-pressed="false">Λόφος και κοιλάδα</button></div>
+      <div class="controls">
+        <div class="ctl"><label for="uX"><span>Θέση εκκίνησης x₀ (από ηρεμία) </span><output id="ouX"></output></label><input id="uX" type="range" min="-2" max="2" step="0.01" value="-1.75"></div>
+        <div class="ctl"><label for="uD"><span>Απόσβεση (τριβή) </span><output id="ouD"></output></label><input id="uD" type="range" min="0" max="0.6" step="0.01" value="0"></div>
+      </div>
+      <div class="btns"><button type="button" class="primary" id="uGo">Άφησέ το</button><button type="button" id="uStop">Σταμάτα</button></div>
+      <div class="readout" id="uOut"></div>
+      <p class="hint">Η οριζόντια γραμμή είναι η συνολική ενέργεια E. Η σκιασμένη περιοχή είναι η επιτρεπτή, και τα κόκκινα σημάδια είναι τα σημεία αναστροφής. Στο διπλό πηγάδι, αν ξεκινήσεις χαμηλά, το σωματίδιο μένει παγιδευμένο στη μία κοιλότητα. Αν ξεκινήσεις ψηλότερα από την κορυφή στη μέση, περνά και στις δύο. Με απόσβεση η E μειώνεται σιγά-σιγά, και το σωματίδιο καταλήγει σε ένα ελάχιστο, δηλαδή σε σημείο ευσταθούς ισορροπίας.</p>
+    </div>
+  </div>
+  <div class="box myth"><p>«Η δυναμική ενέργεια ανήκει στο σώμα.» Ανήκει στο <b>σύστημα</b> των σωμάτων που αλληλεπιδρούν: η \(mgy\) στο σύστημα σώμα–Γη, η \(\tfrac12kx^2\) στο ελατήριο. Γι' αυτό δεν υπάρχει «δυναμική ενέργεια τριβής»: η τριβή δεν αποθηκεύει έργο ώστε να το επιστρέψει.</p></div>
+  <div class="box summary"><ul><li>Συντηρητική είναι η δύναμη της οποίας το έργο εξαρτάται μόνο από τα άκρα της διαδρομής. Γι' αυτές ορίζεται δυναμική ενέργεια με \(W=-\Delta U\).</li><li>\(U_g=mgy\), \(U_{ελ}=\tfrac12kx^2\), \(U_G=-GMm/r\), και αντίστροφα \(F_x=-dU/dx\), \(\vec F=-\nabla U\).</li><li>Στο διάγραμμα \(U(x)\): τα ελάχιστα είναι ευσταθής ισορροπία, τα μέγιστα ασταθής, και τα σημεία όπου \(U=E\) είναι σημεία αναστροφής.</li></ul></div>
+  <p class="bridge">Αν το έργο των συντηρητικών δυνάμεων είναι \(-\Delta U\), και το συνολικό έργο είναι \(\Delta K\), τότε κάτι πρέπει να μένει σταθερό όταν δρουν μόνο συντηρητικές δυνάμεις. Αυτό είναι το θέμα του τελευταίου κεφαλαίου.</p>
+  <label class="learned"><input type="checkbox" data-learn="ch3"> Κατάλαβα το κεφάλαιο 3</label>
+</section>
+
+<!-- ================= 4 ================= -->
+<section class="law" id="ch4" data-ch="4">
+  <div class="law-head"><span class="chap">Κεφάλαιο 4</span><h2>Διατήρηση της ενέργειας και ισχύς</h2></div>
+  <p>Συνδυάζουμε τα δύο προηγούμενα κεφάλαια. Χωρίζουμε το συνολικό έργο σε έργο συντηρητικών δυνάμεων, που γράφεται \(-\Delta U\), και έργο μη συντηρητικών, \(W_{\text{μσ}}\). Τότε το θεώρημα έργου–ενέργειας γράφεται:</p>
+  <div class="mj">\[\Delta K=-\Delta U+W_{\text{μσ}}\quad\Longrightarrow\quad\Delta(K+U)=W_{\text{μσ}}\tag{4.1}\]</div>
+  <div class="thm"><span class="thm-h">Θεώρημα 4 <span class="thm-n">(διατήρηση μηχανικής ενέργειας)</span>.</span> <i>Όταν έργο παράγουν μόνο συντηρητικές δυνάμεις, η μηχανική ενέργεια \(E=K+U\) του σώματος παραμένει σταθερή.</i></div>
+  <div class="mj">\[K_1+U_1=K_2+U_2\tag{4.2}\]</div>
+
+  <h3>Διατήρηση της μηχανικής ενέργειας</h3>
+  <p>Η αρχή αυτή λύνει με μία γραμμή προβλήματα που με τον 2ο νόμο θα ήταν δύσκολα: σώμα σε καμπύλη τροχιά, εκκρεμές, βαγόνι σε τροχιά λούνα παρκ. Σε λεία τροχιά, η ταχύτητα σε κάθε σημείο εξαρτάται <i>μόνο από το ύψος</i>, όχι από το σχήμα της τροχιάς: \(v=\sqrt{v_0^2+2g(h_0-h)}\).</p>
+
+  <h3>Μη συντηρητικές δυνάμεις και θερμότητα</h3>
+  <p>Με τριβή η μηχανική ενέργεια μειώνεται κατά \(|W_f|\). Δεν χάνεται όμως: γίνεται <b>εσωτερική (θερμική) ενέργεια</b> στις επιφάνειες που τρίβονται. Αν τη συμπεριλάβουμε, η <b>συνολική</b> ενέργεια διατηρείται πάντα:</p>
+  <div class="mj">\[K+U+Q=\text{σταθ.},\qquad Q=\left|W_f\right|=\mu_k N\,s\tag{4.3}\]</div>
+  <p>Αυτή είναι η πρώτη μορφή της αρχής διατήρησης της ενέργειας, που θα γενικευτεί στη Θερμοδυναμική ως 1ος θερμοδυναμικός νόμος.</p>
+
+  <div class="bench">
+    <div class="bench-head"><h4>Σκιέρ σε πίστα με λόφους <small>· K, U και θερμότητα σε πραγματικό χρόνο</small></h4></div>
+    <div class="bench-body">
+      <canvas id="cS" height="230" aria-label="Σκιέρ σε πίστα με λόφους"></canvas>
+      <canvas id="gS" height="150" aria-label="Ενέργειες ως προς τον χρόνο"></canvas>
+      <div class="controls">
+        <div class="ctl"><label for="sMu"><span>Συντελεστής τριβής μ </span><output id="osMu"></output></label><input id="sMu" type="range" min="0" max="0.15" step="0.005" value="0.03"></div>
+        <div class="ctl"><label for="sM"><span>Μάζα σκιέρ </span><output id="osM"></output></label><input id="sM" type="range" min="40" max="120" step="1" value="70"></div>
+      </div>
+      <div class="btns"><button type="button" class="primary" id="sGo">Ξεκίνα από την κορυφή</button><button type="button" id="sReset">Επαναφορά</button></div>
+      <div class="readout" id="sOut"></div>
+      <p class="hint">Χωρίς τριβή (μ = 0) ο σκιέρ περνά κάθε λόφο χαμηλότερο από την αφετηρία και φτάνει πάντα ξανά στο αρχικό ύψος. Με τριβή, η θερμότητα (πορτοκαλί) μεγαλώνει, και ο σκιέρ τελικά δεν περνά κάποιον λόφο και ισορροπεί σε μια κοιλάδα. Το άθροισμα K + U + Q μένει πάντα σταθερό.</p>
+    </div>
+  </div>
+
+  <div class="bench">
+    <div class="bench-head"><h4>Εκτοξευτής με ελατήριο <small>· ελαστική → κινητική → δυναμική βαρύτητας + θερμότητα</small></h4></div>
+    <div class="bench-body">
+      <canvas id="cL" height="220" aria-label="Ελατήριο που εκτοξεύει σώμα σε κεκλιμένο επίπεδο"></canvas>
+      <div class="controls">
+        <div class="ctl"><label for="lK"><span>Σταθερά ελατηρίου k </span><output id="olK"></output></label><input id="lK" type="range" min="200" max="5000" step="100" value="2000"></div>
+        <div class="ctl"><label for="lX"><span>Συμπίεση x </span><output id="olX"></output></label><input id="lX" type="range" min="0.02" max="0.2" step="0.01" value="0.1"></div>
+        <div class="ctl"><label for="lM"><span>Μάζα m </span><output id="olM"></output></label><input id="lM" type="range" min="0.1" max="3" step="0.1" value="0.5"></div>
+        <div class="ctl"><label for="lT"><span>Κλίση θ </span><output id="olT"></output></label><input id="lT" type="range" min="5" max="60" step="1" value="30"></div>
+        <div class="ctl"><label for="lMu"><span>μ<sub>k</sub> </span><output id="olMu"></output></label><input id="lMu" type="range" min="0" max="0.5" step="0.01" value="0.2"></div>
+      </div>
+      <div class="btns"><button type="button" class="primary" id="lGo">Απελευθέρωση</button><button type="button" id="lReset">Επαναφορά</button></div>
+      <div class="readout" id="lOut"></div>
+      <p class="hint">Η ενέργεια του ελατηρίου \(\tfrac12kx^2\) μοιράζεται στο τέλος σε δυναμική ενέργεια βαρύτητας και θερμότητα. Έτσι η απόσταση που διανύει το σώμα στο κεκλιμένο είναι \(d=\dfrac{kx^2}{2mg(\sin\theta+\mu_k\cos\theta)}\). Διπλάσια συμπίεση σημαίνει τετραπλάσια απόσταση.</p>
+    </div>
+  </div>
+
+  <h3>Ισχύς</h3>
+  <p>Το έργο δεν λέει τίποτα για το <i>πόσο γρήγορα</i> παράγεται. Ένας ανελκυστήρας και ένας άνθρωπος που ανεβάζουν το ίδιο φορτίο στον ίδιο όροφο κάνουν το ίδιο έργο, αλλά σε πολύ διαφορετικό χρόνο. Ο ρυθμός παραγωγής έργου είναι η <b>ισχύς</b>:</p>
+  <div class="mj">\[P=\frac{dW}{dt}=\vec F\cdot\vec v,\qquad \bar P=\frac{W}{\Delta t},\qquad 1\ \text{W}=1\ \text{J/s},\quad 1\ \text{hp}\approx746\ \text{W}\tag{4.4}\]</div>
+  <p>Η σχέση \(P=Fv\) εξηγεί γιατί ένα αυτοκίνητο σε ανηφόρα κατεβάζει ταχύτητα: με δεδομένη ισχύ, μεγαλύτερη δύναμη σημαίνει μικρότερη ταχύτητα. Για περιστροφική κίνηση η αντίστοιχη σχέση είναι \(P=T\omega\), η βάση κάθε υπολογισμού κινητήρα και μειωτήρα.</p>
+
+  <h3>Βαθμός απόδοσης</h3>
+  <p>Καμία πραγματική μηχανή δεν μετατρέπει όλη την ισχύ εισόδου σε ωφέλιμη ισχύ: μέρος της γίνεται θερμότητα από τριβές. Ο <b>βαθμός απόδοσης</b> είναι ο λόγος τους, και σε αλυσίδα μηχανών οι βαθμοί απόδοσης πολλαπλασιάζονται:</p>
+  <div class="mj">\[\eta=\frac{P_{\text{εξ}}}{P_{\text{εισ}}}<1,\qquad \eta_{\text{ολ}}=\eta_1\,\eta_2\cdots\eta_n\tag{4.5}\]</div>
+  <div class="box deriv"><p>Γερανός ανυψώνει φορτίο 2000 kg με σταθερή ταχύτητα 0.5 m/s. Η ωφέλιμη ισχύς είναι \(P=mgv=9.81\) kW. Με κινητήρα απόδοσης 0.92 και μειωτήρα 0.94, \(\eta_{ολ}=0.865\), οπότε ο κινητήρας πρέπει να δίνει \(9.81/0.865=11.3\) kW. Κατά την επιτάχυνση η απαιτούμενη δύναμη είναι \(m(g+a)\) αντί για \(mg\), οπότε η ισχύς αιχμής είναι μεγαλύτερη.</p></div>
+  <div class="bench">
+    <div class="bench-head"><h4>Γερανός <small>· ισχύς κατά την επιτάχυνση, τη σταθερή ανύψωση και την επιβράδυνση</small></h4></div>
+    <div class="bench-body">
+      <canvas id="cC" height="230" aria-label="Γερανός που ανυψώνει φορτίο"></canvas>
+      <canvas id="gC" height="150" aria-label="Ισχύς ως προς τον χρόνο"></canvas>
+      <div class="controls">
+        <div class="ctl"><label for="cMs"><span>Φορτίο m </span><output id="ocMs"></output></label><input id="cMs" type="range" min="100" max="5000" step="100" value="2000"></div>
+        <div class="ctl"><label for="cV"><span>Ταχύτητα ανύψωσης v </span><output id="ocV"></output></label><input id="cV" type="range" min="0.1" max="2" step="0.05" value="0.5"></div>
+        <div class="ctl"><label for="cA"><span>Επιτάχυνση εκκίνησης a </span><output id="ocA"></output></label><input id="cA" type="range" min="0.1" max="2" step="0.05" value="0.5"></div>
+        <div class="ctl"><label for="cE"><span>Βαθμός απόδοσης η<sub>ολ</sub> </span><output id="ocE"></output></label><input id="cE" type="range" min="0.5" max="0.98" step="0.01" value="0.86"></div>
+      </div>
+      <div class="btns"><button type="button" class="primary" id="cGo">Ανύψωση 8 m</button><button type="button" id="cReset">Επαναφορά</button></div>
+      <div class="readout" id="cOut"></div>
+      <p class="hint">Στο γράφημα, η μπλε καμπύλη είναι η ωφέλιμη ισχύς \(F v\) και η διακεκομμένη η ισχύς του κινητήρα \(Fv/\eta\). Η αιχμή στο τέλος της επιτάχυνσης καθορίζει το μέγεθος του κινητήρα, ενώ η σταθερή φάση το θερμικό του φορτίο. Στην επιβράδυνση η απαιτούμενη ισχύς πέφτει κάτω από το mgv.</p>
+    </div>
+  </div>
+  <div class="box myth"><p>«Μεγαλύτερη ισχύς σημαίνει μεγαλύτερη δύναμη.» Όχι απαραίτητα: \(P=Fv\). Ένας μειωτήρας κρατά την ισχύ σχεδόν ίδια, αλλά πολλαπλασιάζει τη ροπή (δύναμη) και διαιρεί τις στροφές (ταχύτητα). Γι' αυτό ένας μικρός κινητήρας μπορεί, μέσω μειωτήρα, να σηκώσει τεράστιο φορτίο, απλώς αργά.</p></div>
+  <div class="box summary"><ul><li>\(\Delta(K+U)=W_{\text{μσ}}\). Χωρίς μη συντηρητικές δυνάμεις η μηχανική ενέργεια διατηρείται.</li><li>Με τριβή, η μηχανική ενέργεια που «χάνεται» γίνεται θερμότητα, και η συνολική ενέργεια \(K+U+Q\) διατηρείται πάντα.</li><li>Ισχύς \(P=dW/dt=\vec F\cdot\vec v\) (ή \(T\omega\)). Ο βαθμός απόδοσης \(\eta=P_{εξ}/P_{εισ}\), και σε αλυσίδα οι βαθμοί πολλαπλασιάζονται.</li></ul></div>
+  <p class="bridge">Με το έργο και την ενέργεια συμπληρώνεται η δυναμική του υλικού σημείου: ο 2ος νόμος, η ορμή και η ενέργεια είναι τρεις όψεις της ίδιας φυσικής. Στη συνέχεια του μαθήματος, οι ίδιες ιδέες θα γενικευτούν σε συστήματα σωμάτων (κρούσεις) και σε στερεά σώματα που περιστρέφονται. Οι ασκήσεις που ακολουθούν είναι ταξινομημένες ανά κεφάλαιο.</p>
+  <label class="learned"><input type="checkbox" data-learn="ch4"> Κατάλαβα το κεφάλαιο 4</label>
+</section>
+
+<!-- ================= EXERCISES ================= -->
+<section class="law" id="ask">
+  <div class="law-head"><h2>Ασκήσεις</h2></div>
+  <p class="hint">Πάρε \(g=9.81\) m/s². Οι απαντήσεις ελέγχονται με ανοχή 1%, και για δεκαδικούς γράφεις τελεία ή κόμμα. Δυσκολία: ★ βασική, ★★ τυπική εξετάσεων, ★★★ απαιτητική.</p>
+
+  <div class="ex"><h3>1. Σύρσιμο υπό γωνία <span class="tag">Κεφ. 1</span><span class="lvl">★</span></h3>
+    <p>Κιβώτιο 20 kg σύρεται 10 m σε οριζόντιο δάπεδο με σχοινί που ασκεί 100 N υπό γωνία 30° με την οριζόντια, με \(\mu_k=0.2\). Υπολόγισε το έργο του σχοινιού, το έργο της τριβής και το συνολικό έργο.</p>
+    <div class="answers"><label>W<sub>F</sub> [J]<input type="text" inputmode="decimal" data-ans="866.0" data-tol="0.01"></label><label>W<sub>f</sub> [J]<input type="text" inputmode="decimal" data-ans="-292.4" data-tol="0.01"></label><label>W<sub>ολ</sub> [J]<input type="text" inputmode="decimal" data-ans="573.6" data-tol="0.01"></label></div>
+    <div class="btns"><button type="button" class="primary check">Έλεγχος</button></div><div class="feedback"></div>
+    <details><summary>Λύση</summary><ol><li>\(W_F=Fd\cos30^\circ=866.0\) J.</li><li>\(N=mg-F\sin30^\circ=196.2-50=146.2\) N και \(W_f=-\mu_kNd=-292.4\) J.</li><li>\(W_g=W_N=0\), άρα \(W_{ολ}=573.6\) J.</li></ol></details></div>
+
+  <div class="ex"><h3>2. Τέντωμα ελατηρίου <span class="tag">Κεφ. 1</span><span class="lvl">★</span></h3>
+    <p>Ελατήριο με \(k=400\) N/m είναι ήδη τεντωμένο κατά 0.1 m. Πόσο έργο πρέπει να κάνεις για να το τεντώσεις αργά μέχρι τα 0.3 m;</p>
+    <div class="answers"><label>W [J]<input type="text" inputmode="decimal" data-ans="16" data-tol="0.01"></label></div>
+    <div class="btns"><button type="button" class="primary check">Έλεγχος</button></div><div class="feedback"></div>
+    <details><summary>Λύση</summary><ol><li>Με αργή μετακίνηση \(\Delta K=0\), οπότε \(W_{εσύ}=-W_{ελ}=\tfrac12k(x_2^2-x_1^2)\).</li><li>\(=200\,(0.09-0.01)=16\) J: είναι το εμβαδόν του τραπεζίου κάτω από την ευθεία \(F=kx\).</li></ol></details></div>
+
+  <div class="ex"><h3>3. Μεταβλητή δύναμη <span class="tag">Κεφ. 1</span><span class="lvl">★★</span></h3>
+    <p>Σε σώμα ασκείται δύναμη \(F(x)=3x^2\) (F σε N, x σε m) κατά τον άξονα x. Πόσο έργο παράγει από \(x=0\) έως \(x=2\) m;</p>
+    <div class="answers"><label>W [J]<input type="text" inputmode="decimal" data-ans="8" data-tol="0.01"></label></div>
+    <div class="btns"><button type="button" class="primary check">Έλεγχος</button></div><div class="feedback"></div>
+    <details><summary>Λύση</summary><ol><li>\(W=\int_0^23x^2dx=\left[x^3\right]_0^2=8\) J.</li></ol></details></div>
+
+  <div class="ex"><h3>4. Απόσταση φρεναρίσματος <span class="tag">Κεφ. 2</span><span class="lvl">★</span></h3>
+    <p>Αυτοκίνητο 1200 kg κινείται με 90 km/h και φρενάρει με \(\mu_k=0.7\). Πόση κινητική ενέργεια έχει και σε πόση απόσταση σταματά;</p>
+    <div class="answers"><label>K [kJ]<input type="text" inputmode="decimal" data-ans="375" data-tol="0.01"></label><label>s [m]<input type="text" inputmode="decimal" data-ans="45.51" data-tol="0.01"></label></div>
+    <div class="btns"><button type="button" class="primary check">Έλεγχος</button></div><div class="feedback"></div>
+    <details><summary>Λύση</summary><ol><li>\(v=25\) m/s, \(K=\tfrac12\cdot1200\cdot625=375\) kJ.</li><li>\(s=v^2/(2\mu_kg)=625/13.73=45.5\) m.</li></ol></details></div>
+
+  <div class="ex"><h3>5. Σφαίρα σε ξύλο <span class="tag">Κεφ. 2</span><span class="lvl">★★</span></h3>
+    <p>Σφαίρα 10 g με ταχύτητα 400 m/s σφηνώνεται σε ξύλο και σταματά αφού διανύσει 8 cm. Πόση είναι η μέση δύναμη αντίστασης του ξύλου;</p>
+    <div class="answers"><label>F [N]<input type="text" inputmode="decimal" data-ans="10000" data-tol="0.01"></label></div>
+    <div class="btns"><button type="button" class="primary check">Έλεγχος</button></div><div class="feedback"></div>
+    <details><summary>Λύση</summary><ol><li>\(K=\tfrac12\cdot0.01\cdot400^2=800\) J.</li><li>\(-\bar Fd=0-K\Rightarrow\bar F=800/0.08=10\,000\) N, περίπου 100 000 φορές το βάρος της σφαίρας.</li></ol></details></div>
+
+  <div class="ex"><h3>6. Σημεία ισορροπίας <span class="tag">Κεφ. 3</span><span class="lvl">★★</span></h3>
+    <p>Σωματίδιο κινείται με δυναμική ενέργεια \(U(x)=2x^3-6x\) (U σε J, x σε m). Βρες τη θέση ευσταθούς ισορροπίας και τη δυναμική ενέργεια εκεί.</p>
+    <div class="answers"><label>x [m]<input type="text" inputmode="decimal" data-ans="1" data-tol="0.01"></label><label>U [J]<input type="text" inputmode="decimal" data-ans="-4" data-tol="0.01"></label></div>
+    <div class="btns"><button type="button" class="primary check">Έλεγχος</button></div><div class="feedback"></div>
+    <details><summary>Λύση</summary><ol><li>\(F=-dU/dx=-(6x^2-6)=0\Rightarrow x=\pm1\).</li><li>\(d^2U/dx^2=12x\): θετική στο \(x=1\), άρα ευσταθής εκεί. Στο \(x=-1\) η ισορροπία είναι ασταθής.</li><li>\(U(1)=2-6=-4\) J.</li></ol></details></div>
+
+  <div class="ex"><h3>7. Λεία τροχιά <span class="tag">Κεφ. 4</span><span class="lvl">★</span></h3>
+    <p>Βαγόνι αφήνεται από ύψος 5 m σε λεία τροχιά λούνα παρκ. Πόση ταχύτητα έχει στο χαμηλότερο σημείο (ύψος 0) και πόση σε έναν λόφο ύψους 2 m;</p>
+    <div class="answers"><label>v (h = 0) [m/s]<input type="text" inputmode="decimal" data-ans="9.905" data-tol="0.01"></label><label>v (h = 2 m) [m/s]<input type="text" inputmode="decimal" data-ans="7.672" data-tol="0.01"></label></div>
+    <div class="btns"><button type="button" class="primary check">Έλεγχος</button></div><div class="feedback"></div>
+    <details><summary>Λύση</summary><ol><li>\(mgh_0=\tfrac12mv^2+mgh\Rightarrow v=\sqrt{2g(h_0-h)}\).</li><li>\(\sqrt{2\cdot9.81\cdot5}=9.90\) m/s και \(\sqrt{2\cdot9.81\cdot3}=7.67\) m/s, ανεξάρτητα από το σχήμα της τροχιάς.</li></ol></details></div>
+
+  <div class="ex"><h3>8. Εκτοξευτής σε κεκλιμένο <span class="tag">Κεφ. 4</span><span class="lvl">★★</span></h3>
+    <p>Ελατήριο \(k=2000\) N/m, συμπιεσμένο κατά 0.1 m στη βάση κεκλιμένου επιπέδου 30°, εκτοξεύει σώμα 0.5 kg. Με \(\mu_k=0.2\), πόσο ανεβαίνει το σώμα κατά μήκος του επιπέδου;</p>
+    <div class="answers"><label>d [m]<input type="text" inputmode="decimal" data-ans="3.028" data-tol="0.01"></label></div>
+    <div class="btns"><button type="button" class="primary check">Έλεγχος</button></div><div class="feedback"></div>
+    <details><summary>Λύση</summary><ol><li>\(\tfrac12kx^2=10\) J.</li><li>\(10=mgd\sin\theta+\mu_kmg\cos\theta\,d\Rightarrow d=\dfrac{10}{4.905\,(0.5+0.173)}=3.03\) m.</li></ol></details></div>
+
+  <div class="ex"><h3>9. Θερμότητα στο σκι <span class="tag">Κεφ. 4</span><span class="lvl">★★</span></h3>
+    <p>Σκιέρ 70 kg ξεκινά από ηρεμία σε ύψος 40 m και φτάνει στη βάση με 20 m/s. Πόση ενέργεια έγινε θερμότητα;</p>
+    <div class="answers"><label>Q [J]<input type="text" inputmode="decimal" data-ans="13468" data-tol="0.01"></label></div>
+    <div class="btns"><button type="button" class="primary check">Έλεγχος</button></div><div class="feedback"></div>
+    <details><summary>Λύση</summary><ol><li>\(Q=mgh-\tfrac12mv^2=27\,468-14\,000=13\,468\) J: σχεδόν η μισή αρχική ενέργεια.</li></ol></details></div>
+
+  <div class="ex"><h3>10. Ισχύς γερανού <span class="tag">Κεφ. 4</span><span class="lvl">★</span></h3>
+    <p>Γερανός ανυψώνει 2000 kg με σταθερή ταχύτητα 0.5 m/s. Ο συνολικός βαθμός απόδοσης είναι 0.85. Πόση είναι η ωφέλιμη ισχύς και πόση η ισχύς εισόδου του κινητήρα;</p>
+    <div class="answers"><label>P<sub>εξ</sub> [W]<input type="text" inputmode="decimal" data-ans="9810" data-tol="0.01"></label><label>P<sub>εισ</sub> [W]<input type="text" inputmode="decimal" data-ans="11541" data-tol="0.01"></label></div>
+    <div class="btns"><button type="button" class="primary check">Έλεγχος</button></div><div class="feedback"></div>
+    <details><summary>Λύση</summary><ol><li>\(P_{εξ}=mgv=9810\) W.</li><li>\(P_{εισ}=9810/0.85=11\,541\) W.</li></ol></details></div>
+
+  <div class="ex"><h3>11. Αντλία <span class="tag">Κεφ. 4</span><span class="lvl">★★</span></h3>
+    <p>Αντλία ανεβάζει 30 m³/h νερό σε ύψος 25 m με βαθμό απόδοσης 0.70. Πόση είναι η υδραυλική (ωφέλιμη) ισχύς και πόση η ισχύς στον άξονα της αντλίας;</p>
+    <div class="answers"><label>P<sub>υδρ</sub> [W]<input type="text" inputmode="decimal" data-ans="2043.75" data-tol="0.01"></label><label>P<sub>άξονα</sub> [W]<input type="text" inputmode="decimal" data-ans="2919.6" data-tol="0.01"></label></div>
+    <div class="btns"><button type="button" class="primary check">Έλεγχος</button></div><div class="feedback"></div>
+    <details><summary>Λύση</summary><ol><li>Παροχή μάζας \(\dot m=\rho Q=1000\cdot30/3600=8.33\) kg/s.</li><li>\(P_{υδρ}=\dot m\,g\,h=8.33\cdot9.81\cdot25=2044\) W.</li><li>\(P_{άξ}=2044/0.70=2920\) W.</li></ol></details></div>
+
+  <div class="ex"><h3>12. Αυτοκίνητο σε ανηφόρα <span class="tag">Κεφ. 4</span><span class="lvl">★★★</span></h3>
+    <p>Αυτοκίνητο 1500 kg ανεβαίνει ανηφόρα κλίσης 5% (\(\tan\theta=0.05\)) με σταθερή ταχύτητα 72 km/h. Οι αντιστάσεις κύλισης και αέρα είναι συνολικά 600 N. Πόση είναι η συνιστώσα του βάρους κατά μήκος του δρόμου και πόση ισχύ δίνουν οι τροχοί;</p>
+    <div class="answers"><label>mg·sinθ [N]<input type="text" inputmode="decimal" data-ans="734.8" data-tol="0.01"></label><label>P [kW]<input type="text" inputmode="decimal" data-ans="26.70" data-tol="0.01"></label></div>
+    <div class="btns"><button type="button" class="primary check">Έλεγχος</button></div><div class="feedback"></div>
+    <details><summary>Λύση</summary><ol><li>\(\theta=\arctan0.05=2.86^\circ\), \(mg\sin\theta=734.8\) N.</li><li>Σταθερή ταχύτητα: \(F_{\text{κίνησης}}=734.8+600=1334.8\) N.</li><li>\(P=Fv=1334.8\cdot20=26.7\) kW. Στην ευθεία θα χρειαζόταν μόλις 12 kW.</li></ol></details></div>
+</section>
+
+<!-- ================= QUIZ ================= -->
+<section class="law" id="quiz">
+  <div class="law-head"><h2>Κουίζ κατανόησης</h2><span class="score" id="qScore"></span></div>
+  <div id="quizBox"></div>
+  <div class="btns"><button type="button" id="qReset">Ξανά από την αρχή</button></div>
+</section>
+
+<!-- ================= SHEET ================= -->
+<section class="law" id="sheet">
+  <div class="law-head"><h2>Τυπολόγιο</h2></div>
+  <div class="sheet">
+    <div><h4>Έργο</h4><div class="mj">\[W=\int\vec F\cdot d\vec r,\qquad W=Fd\cos\theta\]</div></div>
+    <div><h4>Έργα βάρους, τριβής, ελατηρίου</h4><div class="mj">\[W_g=-mg\Delta y,\ \ W_f=-\mu_kNs,\ \ W_{ελ}=-\tfrac12k(x_2^2-x_1^2)\]</div></div>
+    <div><h4>Θεώρημα έργου–ενέργειας</h4><div class="mj">\[W_{ολ}=\Delta K,\qquad K=\tfrac12mv^2\]</div></div>
+    <div><h4>Δυναμική ενέργεια</h4><div class="mj">\[W_{συντ}=-\Delta U,\ \ U_g=mgy,\ \ U_{ελ}=\tfrac12kx^2,\ \ U_G=-\frac{GMm}{r}\]</div></div>
+    <div><h4>Δύναμη από δυναμικό</h4><div class="mj">\[F_x=-\frac{dU}{dx},\qquad\vec F=-\nabla U\]</div></div>
+    <div><h4>Ισορροπία</h4><div class="mj">\[\frac{dU}{dx}=0,\qquad \frac{d^2U}{dx^2}>0\ \text{ευσταθής}\]</div></div>
+    <div><h4>Διατήρηση</h4><div class="mj">\[\Delta(K+U)=W_{μσ},\qquad K+U+Q=\text{σταθ.}\]</div></div>
+    <div><h4>Ισχύς, απόδοση</h4><div class="mj">\[P=\frac{dW}{dt}=\vec F\cdot\vec v=T\omega,\qquad\eta=\frac{P_{εξ}}{P_{εισ}}\]</div></div>
+    <div><h4>Φρενάρισμα, εκτόξευση</h4><div class="mj">\[s=\frac{v_0^2}{2\mu g},\qquad d=\frac{kx^2}{2mg(\sin\theta+\mu\cos\theta)}\]</div></div>
+  </div>
+</section>
+
+<nav class="chapnav" aria-label="Κεφάλαια μαθήματος"><a href="https://gpchatzis-a11y.github.io/mech-tools/" id="prevLink">← Προηγούμενο: Οι νόμοι του Νεύτωνα</a></nav>
+
+<footer>Σημειώσεις για προσωπική μελέτη στο μάθημα Φυσική Ι. Τα animation χρησιμοποιούν αριθμητική ολοκλήρωση με g = 9.81 m/s². Η πρόοδός σου αποθηκεύεται μόνο σε αυτή τη συσκευή.</footer>
+</main>
+
+<script>
+(() => {
+"use strict";
+const G = 9.81;
+const $ = id => document.getElementById(id);
+const fmt = (x, d = 2) => (Math.abs(x) < 1e-9 ? 0 : x).toFixed(d).replace(".", ",");
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- theme-aware colours ---------- */
+let C = {};
+function readColors(){
+  const s = getComputedStyle(document.documentElement);
+  ["ink","muted","line","accent","f-app","f-fric","f-wt","f-norm","f-other","stage","ground","grid","paper","good","bad"].forEach(k => C[k] = s.getPropertyValue("--" + k).trim());
+}
+readColors();
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { readColors(); scenes.forEach(s => s.draw()); });
+new MutationObserver(() => { readColors(); scenes.forEach(s => s.draw()); }).observe(document.documentElement, { attributes:true, attributeFilter:["data-theme"] });
+
+/* ---------- canvas helper ---------- */
+function setupCanvas(cv){
+  const ctx = cv.getContext("2d");
+  const baseH = +cv.getAttribute("height");
+  const st = { cv, ctx, w: 0, h: baseH };
+  const fit = () => {
+    const dpr = window.devicePixelRatio || 1;
+    st.w = cv.clientWidth || 600;
+    st.h = baseH;
+    cv.style.height = baseH + "px";
+    cv.width = Math.round(st.w * dpr); cv.height = Math.round(baseH * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+  fit();
+  st.fit = fit;
+  return st;
+}
+function arrow(ctx, x1, y1, x2, y2, color, label, lw = 3){
+  const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+  if (len < 2) return;
+  const ux = dx / len, uy = dy / len, hs = Math.min(10, len * 0.5);
+  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = lw; ctx.lineCap = "round";
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * hs * 0.8, y2 - uy * hs * 0.8); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - ux * hs - uy * hs * 0.55, y2 - uy * hs + ux * hs * 0.55);
+  ctx.lineTo(x2 - ux * hs + uy * hs * 0.55, y2 - uy * hs - ux * hs * 0.55);
+  ctx.closePath(); ctx.fill();
+  if (label){
+    ctx.font = "600 12px 'Source Sans 3', system-ui, sans-serif";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(label, x2 + ux * 12 + (Math.abs(uy) > 0.5 ? 14 : 0), y2 + uy * 12 - (Math.abs(ux) > 0.5 ? 10 : 0));
+  }
+}
+function roundRect(ctx, x, y, w, h, r){ ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, w, h, r) : ctx.rect(x, y, w, h); }
+function text(ctx, s, x, y, color, size = 12, align = "left", weight = 500){
+  ctx.fillStyle = color; ctx.font = `${weight} ${size}px 'Source Sans 3', system-ui, sans-serif`;
+  ctx.textAlign = align; ctx.textBaseline = "middle"; ctx.fillText(s, x, y);
+}
+/* small time-series plot */
+function plot(st, series, opts){
+  const { ctx, w, h } = st; const pad = { l: 38, r: 10, t: 12, b: 22 };
+  ctx.clearRect(0, 0, w, h);
+  const pw = w - pad.l - pad.r, ph = h - pad.t - pad.b;
+  const tMax = opts.tMax, all = series.flatMap(s => s.pts.map(p => p[1]));
+  const yMax = Math.max(opts.yMin || 1, ...all) * 1.1;
+  const yLo = opts.neg ? Math.min(0, ...all) * 1.1 : 0;
+  const Yof = y => pad.t + ph * (yMax - y) / (yMax - yLo);
+  ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++){ const y = pad.t + ph * i / 4; ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(w - pad.r, y); ctx.stroke(); }
+  ctx.strokeStyle = C.muted; ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + ph); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pad.l, Yof(0)); ctx.lineTo(w - pad.r, Yof(0)); ctx.stroke();
+  text(ctx, fmt(yMax, 1), pad.l - 4, pad.t + 2, C.muted, 10, "right");
+  text(ctx, "0", pad.l - 4, Yof(0), C.muted, 10, "right");
+  if (yLo < 0) text(ctx, fmt(yLo, 1), pad.l - 4, pad.t + ph, C.muted, 10, "right");
+  text(ctx, opts.yLabel, pad.l + 6, pad.t + 6, C.muted, 11);
+  text(ctx, "t [s] → " + fmt(tMax, 0), w - pad.r, h - 8, C.muted, 10, "right");
+  series.forEach(s => {
+    if (!s.pts.length) return;
+    ctx.strokeStyle = s.color; ctx.lineWidth = s.dash ? 1.5 : 2; ctx.setLineDash(s.dash ? [6, 4] : []); ctx.beginPath();
+    s.pts.forEach(([t, y], i) => { const X = pad.l + pw * Math.min(t, tMax) / tMax, Y = Yof(y); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); });
+    ctx.stroke(); ctx.setLineDash([]);
+    if (s.label){ const [t, y] = s.pts[s.pts.length - 1]; text(ctx, s.label, Math.min(pad.l + pw * Math.min(t, tMax) / tMax + 6, w - 40), Yof(y) - 8, s.color, 11, "left", 600); }
+  });
+}
+
+/* ---------- animation loop: only scenes on screen run ---------- */
+const scenes = [];
+function addScene(sc){
+  scenes.push(sc); sc.visible = false;
+  new IntersectionObserver(es => es.forEach(e => sc.visible = e.isIntersecting), { threshold: 0.05 }).observe(sc.el);
+  sc.draw();
+}
+let last = performance.now();
+function loop(now){
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  scenes.forEach(sc => { if (sc.visible && sc.running){ sc.step(dt); sc.draw(); } });
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+let resizeT;
+addEventListener("resize", () => { clearTimeout(resizeT); resizeT = setTimeout(() => scenes.forEach(sc => { sc.canvases.forEach(c => c.fit()); sc.draw(); }), 120); });
+const bindRange = (id, outId, fmtFn) => { const el = $(id), o = $(outId); const up = () => o.textContent = fmtFn(+el.value); el.addEventListener("input", up); up(); return el; };
+
+const ro = (id, items) => { $(id).innerHTML = items.map(([l, v, h]) => `<div class="ro${h ? " hi" : ""}"><span>${l}</span><b>${v}</b></div>`).join(""); };
+const J = (x, d = 1) => Math.abs(x) >= 1e4 ? fmt(x / 1000, 2) + " kJ" : fmt(x, d) + " J";
+/* axes for x–y graphs */
+function axes(st, o){
+  const { ctx, w, h } = st, pad = { l: 44, r: 12, t: 14, b: 24 };
+  const pw = w - pad.l - pad.r, ph = h - pad.t - pad.b;
+  const X = x => pad.l + pw * (x - o.x0) / (o.x1 - o.x0), Y = y => pad.t + ph * (o.y1 - y) / (o.y1 - o.y0);
+  ctx.clearRect(0, 0, w, h);
+  ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++){ const y = pad.t + ph * i / 4; ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(w - pad.r, y); ctx.stroke(); }
+  ctx.strokeStyle = C.muted; ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + ph); ctx.stroke();
+  const y0 = Math.min(Math.max(0, o.y0), o.y1); ctx.beginPath(); ctx.moveTo(pad.l, Y(y0)); ctx.lineTo(w - pad.r, Y(y0)); ctx.stroke();
+  if (o.yLabel) text(ctx, o.yLabel, pad.l + 6, pad.t + 4, C.muted, 11);
+  if (o.xLabel) text(ctx, o.xLabel, w - pad.r, h - 8, C.muted, 10, "right");
+  if (o.ticks !== false){ text(ctx, fmt(o.y1, o.yd ?? 0), pad.l - 4, pad.t + 2, C.muted, 10, "right"); if (o.y0 < 0) text(ctx, fmt(o.y0, o.yd ?? 0), pad.l - 4, pad.t + ph, C.muted, 10, "right"); text(ctx, "0", pad.l - 4, Y(y0), C.muted, 10, "right"); }
+  return { X, Y, pad, pw, ph };
+}
+
+/* ======================= 1.1 work as area ======================= */
+{
+  const st = setupCanvas($("cW")), gs = setupCanvas($("gW"));
+  const F = bindRange("wF", "owF", v => v + " N"), T = bindRange("wT", "owT", v => v + "°"), M = bindRange("wM", "owM", v => v + " kg"), Mu = bindRange("wMu", "owMu", v => fmt(v, 2));
+  const L = 10, s = { x: 0, v: 0, running: false };
+  const par = () => { const th = +T.value * Math.PI / 180, m = +M.value, f = +F.value, mu = +Mu.value;
+    const Fx = f * Math.cos(th), N = Math.max(0, m * G - f * Math.sin(th)), fr = mu * N; return { th, m, f, mu, Fx, N, fr, a: (Fx - fr) / m }; };
+  const sc = { el: $("cW"), canvases: [st, gs], get running(){ return s.running; },
+    step(dt){ const p = par(); if (p.a <= 0){ s.running = false; return; }
+      const sp = Math.max(1, Math.sqrt(2 * L / p.a) / 4); dt *= sp;
+      s.v += p.a * dt; s.x += s.v * dt; if (s.x >= L){ s.x = L; s.v = Math.sqrt(2 * p.a * L); s.running = false; } },
+    draw(){
+      const p = par(), { ctx, w, h } = st; ctx.clearRect(0, 0, w, h);
+      const gy = h - 34, x0 = 40, PX = (w - 150) / L;
+      ctx.fillStyle = C.ground; ctx.fillRect(0, gy, w, 3);
+      for (let m = 0; m <= L; m += 2) text(ctx, m + " m", x0 + m * PX + 23, gy + 18, C.muted, 10, "center");
+      const bs = 46, bx = x0 + s.x * PX, cx = bx + bs / 2, cy = gy - bs / 2;
+      roundRect(ctx, bx, gy - bs, bs, bs, 6); ctx.fillStyle = C.accent; ctx.fill();
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(cx + bs / 2, cy); ctx.lineTo(cx + bs / 2 + 90 * Math.cos(p.th), cy - 90 * Math.sin(p.th)); ctx.stroke();
+      const k = 0.35;
+      arrow(ctx, cx + bs / 2, cy, cx + bs / 2 + p.f * k * Math.cos(p.th), cy - p.f * k * Math.sin(p.th), C["f-app"], "F");
+      if (p.fr > 0) arrow(ctx, bx, gy - 6, bx - p.fr * k, gy - 6, C["f-fric"], "f");
+      arrow(ctx, cx - 8, gy - bs, cx - 8, gy - bs - p.N * k * 0.25, C["f-norm"], "N");
+      arrow(ctx, cx + 8, cy, cx + 8, cy + p.m * G * k * 0.25, C["f-wt"], "W", 2.5);
+      const msg = p.a <= 0 ? (p.N === 0 ? "" : "F cosθ ≤ τριβή: το κιβώτιο δεν κινείται") : (s.x >= L ? "Έφτασε στα 10 m" : (s.x > 0 ? "Κινείται…" : "Πάτα «Τράβηξε»"));
+      text(ctx, p.N === 0 ? "F sinθ ≥ mg: το κιβώτιο σηκώνεται (εκτός μοντέλου)" : msg, 12, 16, C.ink, 13, "left", 600);
+      // F–x graph
+      const yMax = Math.max(50, p.f * 1.05), yMin = -Math.max(30, p.fr * 1.3);
+      const A = axes(gs, { x0: 0, x1: L, y0: yMin, y1: yMax, yLabel: "δύναμη κατά x [N]", xLabel: "x [m] → 10" });
+      const g = gs.ctx;
+      g.globalAlpha = 0.25; g.fillStyle = C["f-app"]; g.fillRect(A.X(0), A.Y(p.Fx), A.X(s.x) - A.X(0), A.Y(0) - A.Y(p.Fx));
+      g.fillStyle = C["f-fric"]; g.fillRect(A.X(0), A.Y(0), A.X(s.x) - A.X(0), A.Y(-p.fr) - A.Y(0)); g.globalAlpha = 1;
+      g.lineWidth = 2; g.strokeStyle = C["f-app"]; g.beginPath(); g.moveTo(A.X(0), A.Y(p.Fx)); g.lineTo(A.X(L), A.Y(p.Fx)); g.stroke();
+      g.strokeStyle = C["f-fric"]; g.beginPath(); g.moveTo(A.X(0), A.Y(-p.fr)); g.lineTo(A.X(L), A.Y(-p.fr)); g.stroke();
+      text(g, "F cosθ = " + fmt(p.Fx, 1) + " N", A.X(L) - 4, A.Y(p.Fx) - 9, C["f-app"], 11, "right", 600);
+      if (p.fr > 0) text(g, "−f = −" + fmt(p.fr, 1) + " N", A.X(L) - 4, A.Y(-p.fr) + 10, C["f-fric"], 11, "right", 600);
+      g.strokeStyle = C.ink; g.setLineDash([4, 4]); g.beginPath(); g.moveTo(A.X(s.x), A.Y(yMax)); g.lineTo(A.X(s.x), A.Y(yMin)); g.stroke(); g.setLineDash([]);
+      const WF = p.Fx * s.x, Wf = -p.fr * s.x;
+      ro("wOut", [["W_F = F cosθ · x", J(WF)], ["W_f = −μ_k N · x", J(Wf)], ["W_N = W_B", "0 J"], ["ΣW", J(WF + Wf), 1], ["ΔK = ½mv²", J(0.5 * p.m * s.v * s.v), 1], ["N = mg − F sinθ", fmt(p.N, 1) + " N"]]);
+    } };
+  const reset = () => { Object.assign(s, { x: 0, v: 0, running: false }); sc.draw(); };
+  $("wGo").addEventListener("click", () => { reset(); s.running = true; });
+  $("wReset").addEventListener("click", reset);
+  [F, T, M, Mu].forEach(el => el.addEventListener("input", reset));
+  addScene(sc);
+}
+
+/* ======================= 2.1 braking distance ======================= */
+{
+  const st = setupCanvas($("cB")), gs = setupCanvas($("gB"));
+  const V = bindRange("bV", "obV", v => v + " km/h"), Mu = bindRange("bMu", "obMu", v => fmt(v, 2)), M = bindRange("bM", "obM", v => v + " kg");
+  const s = { t: 0, running: false, dbl: true };
+  const par = () => { const v1 = +V.value / 3.6, mu = +Mu.value, m = +M.value, a = mu * G; const cars = [v1, 2 * v1].slice(0, s.dbl ? 2 : 1).map(v0 => ({ v0, d: v0 * v0 / (2 * a), T: v0 / a, K0: 0.5 * m * v0 * v0 })); return { v1, mu, m, a, cars }; };
+  const state = (c, a, t) => { const tt = Math.min(t, c.T); return { x: c.v0 * tt - 0.5 * a * tt * tt, v: c.v0 - a * tt }; };
+  const sc = { el: $("cB"), canvases: [st, gs], get running(){ return s.running; },
+    step(dt){ const p = par(), Tm = Math.max(...p.cars.map(c => c.T)); s.t += dt * Math.max(1, Tm / 5); if (s.t >= Tm){ s.t = Tm; s.running = false; } },
+    draw(){
+      const p = par(), { ctx, w, h } = st; ctx.clearRect(0, 0, w, h);
+      const dMax = Math.max(...p.cars.map(c => c.d)), x0 = 30, PX = (w - x0 - 70) / dMax;
+      const cols = [C.accent, C["f-fric"]];
+      p.cars.forEach((c, i) => {
+        const ly = 60 + i * 80; ctx.fillStyle = C.ground; ctx.fillRect(0, ly + 16, w, 2);
+        const { x, v } = state(c, p.a, s.t), X = x0 + x * PX;
+        ctx.strokeStyle = cols[i]; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(x0 + c.d * PX + 40, ly - 22); ctx.lineTo(x0 + c.d * PX + 40, ly + 18); ctx.stroke(); ctx.setLineDash([]);
+        roundRect(ctx, X, ly - 8, 40, 16, 5); ctx.fillStyle = cols[i]; ctx.fill(); roundRect(ctx, X + 8, ly - 18, 22, 11, 4); ctx.fill();
+        ctx.fillStyle = C.ink; [X + 9, X + 31].forEach(cx => { ctx.beginPath(); ctx.arc(cx, ly + 9, 5, 0, 7); ctx.fill(); });
+        text(ctx, (i ? "2·v₀ = " : "v₀ = ") + fmt(c.v0 * 3.6, 0) + " km/h · d = " + fmt(c.d, 1) + " m", 12, ly - 32, cols[i], 12, "left", 600);
+        if (X + 100 > w) text(ctx, fmt(v * 3.6, 0) + " km/h", X - 8, ly, C.muted, 11, "right"); else text(ctx, fmt(v * 3.6, 0) + " km/h", X + 48, ly, C.muted, 11);
+      });
+      // K vs x
+      const KMax = Math.max(...p.cars.map(c => c.K0)) / 1000;
+      const A = axes(gs, { x0: 0, x1: dMax, y0: 0, y1: KMax * 1.1, yLabel: "K [kJ]", xLabel: "x [m] → " + fmt(dMax, 0) });
+      const g = gs.ctx;
+      p.cars.forEach((c, i) => {
+        g.strokeStyle = cols[i]; g.lineWidth = 1.2; g.setLineDash([5, 4]); g.beginPath(); g.moveTo(A.X(0), A.Y(c.K0 / 1000)); g.lineTo(A.X(c.d), A.Y(0)); g.stroke(); g.setLineDash([]);
+        const { x } = state(c, p.a, s.t); g.lineWidth = 2.5; g.beginPath(); g.moveTo(A.X(0), A.Y(c.K0 / 1000)); g.lineTo(A.X(x), A.Y((c.K0 - p.mu * p.m * G * x) / 1000)); g.stroke();
+        text(g, fmt(c.K0 / 1000, 0) + " kJ", A.X(0) + 6, A.Y(c.K0 / 1000) + 10, cols[i], 11, "left", 600);
+      });
+      const f = p.mu * p.m * G, c1 = p.cars[0], c2 = p.cars[1];
+      const items = [["Τριβή f = μmg", fmt(f / 1000, 2) + " kN"], ["K₀ (v₀)", J(c1.K0)], ["d (v₀)", fmt(c1.d, 1) + " m", 1]];
+      if (c2) items.push(["K₀ (2v₀)", J(c2.K0)], ["d (2v₀)", fmt(c2.d, 1) + " m", 1], ["d₂ / d₁", fmt(c2.d / c1.d, 2)]);
+      ro("bOut", items);
+    } };
+  const reset = () => { s.t = 0; s.running = false; sc.draw(); };
+  $("bGo").addEventListener("click", () => { s.t = 0; s.running = true; });
+  $("bReset").addEventListener("click", reset);
+  $("bDbl").addEventListener("click", e => { s.dbl = !s.dbl; e.currentTarget.setAttribute("aria-pressed", s.dbl); reset(); });
+  [V, Mu, M].forEach(el => el.addEventListener("input", reset));
+  addScene(sc);
+}
+
+/* ======================= 3.1 path independence ======================= */
+{
+  const st = setupCanvas($("cP"));
+  const Mu = bindRange("pMu", "opMu", v => fmt(v, 2));
+  const m = 10, H = 6, D = 8;
+  const P = [[[0, 0], [D, H]], [[0, 0], [2, 5], [D, H]], [[0, 0], [10.4, 3], [D, H]]];
+  const names = ["Ευθεία", "Απότομη + ήπια", "Με παράκαμψη"], cols = () => [C.accent, C["f-other"], C["f-fric"]];
+  const segs = pts => { const out = []; for (let i = 1; i < pts.length; i++){ const [a, b] = [pts[i - 1], pts[i]]; out.push({ a, b, L: Math.hypot(b[0] - a[0], b[1] - a[1]) }); } return out; };
+  const tot = k => segs(P[k]).reduce((q, z) => q + z.L, 0), horiz = k => segs(P[k]).reduce((q, z) => q + Math.abs(z.b[0] - z.a[0]), 0);
+  const s = { k: 0, d: 0, running: false, done: {} };
+  const posAt = (k, d) => { let r = d; for (const z of segs(P[k])){ if (r <= z.L){ const u = r / z.L; return { x: z.a[0] + u * (z.b[0] - z.a[0]), y: z.a[1] + u * (z.b[1] - z.a[1]), hx: 0 }; } r -= z.L; } const e = P[k][P[k].length - 1]; return { x: e[0], y: e[1] }; };
+  const horizTo = (k, d) => { let r = d, q = 0; for (const z of segs(P[k])){ const f = Math.min(1, Math.max(0, r / z.L)); q += f * Math.abs(z.b[0] - z.a[0]); r -= z.L; if (r <= 0) break; } return q; };
+  const sc = { el: $("cP"), canvases: [st], get running(){ return s.running; },
+    step(dt){ const L = tot(s.k); s.d += dt * L / 3; if (s.d >= L){ s.d = L; s.running = false; s.done[s.k] = { Wf: -(+Mu.value) * m * G * horiz(s.k), mu: +Mu.value }; } },
+    draw(){
+      const { ctx, w, h } = st; ctx.clearRect(0, 0, w, h);
+      const sx = Math.min((w - 100) / 11, (h - 50) / 7), ox = 40, oy = h - 26, X = x => ox + x * sx, Y = y => oy - y * sx;
+      ctx.fillStyle = C.ground; ctx.fillRect(0, oy, w, 2);
+      ctx.strokeStyle = C.line; ctx.setLineDash([3, 4]); ctx.beginPath(); ctx.moveTo(X(-0.5), Y(H)); ctx.lineTo(X(11), Y(H)); ctx.stroke(); ctx.setLineDash([]);
+      ctx.strokeStyle = C.muted; ctx.beginPath(); ctx.moveTo(X(11), Y(0)); ctx.lineTo(X(11), Y(H)); ctx.stroke(); text(ctx, "h = 6 m", X(11) + 6, (Y(0) + Y(H)) / 2, C.muted, 11);
+      const cl = cols();
+      P.forEach((pts, k) => { ctx.strokeStyle = cl[k]; ctx.lineWidth = k === s.k ? 4 : 1.5; ctx.globalAlpha = k === s.k ? 1 : 0.45; ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(X(x), Y(y)) : ctx.moveTo(X(x), Y(y))); ctx.stroke(); });
+      ctx.globalAlpha = 1;
+      [["A", 0, 0], ["B", D, H]].forEach(([n, x, y]) => { ctx.fillStyle = C.ink; ctx.beginPath(); ctx.arc(X(x), Y(y), 4, 0, 7); ctx.fill(); text(ctx, n, X(x) - 12, Y(y) - 10, C.ink, 13, "center", 700); });
+      const q = posAt(s.k, s.d); roundRect(ctx, X(q.x) - 10, Y(q.y) - 20, 20, 20, 4); ctx.fillStyle = C.accent; ctx.fill();
+      // finished list
+      const Wg = -m * G * q.y, Wf = -(+Mu.value) * m * G * horizTo(s.k, s.d);
+      ro("pOut", [["Μήκος δρόμου", fmt(tot(s.k), 2) + " m"], ["Οριζόντια απόσταση Σ|Δx|", fmt(horiz(s.k), 1) + " m"], ["W_B = −mgΔy", J(Wg), 1], ["W_f = −μmg Σ|Δx|", J(Wf), 1], ["Έργο που δαπανάς", J(-Wg - Wf)]].concat([0, 1, 2].filter(k => s.done[k]).map(k => [names[k] + " ✓ (W_B, W_f)", fmt(-m * G * H, 0) + ", " + fmt(s.done[k].Wf, 0) + " J"])));
+    } };
+  document.querySelectorAll(".pth").forEach(b => b.addEventListener("click", () => { s.k = +b.dataset.p; s.d = 0; s.running = false; document.querySelectorAll(".pth").forEach(bb => bb.setAttribute("aria-pressed", bb === b)); sc.draw(); }));
+  $("pGo").addEventListener("click", () => { s.d = 0; s.running = true; });
+  Mu.addEventListener("input", () => { s.d = 0; s.running = false; s.done = {}; sc.draw(); });
+  addScene(sc);
+}
+
+/* ======================= 3.2 potential-energy diagrams ======================= */
+{
+  const st = setupCanvas($("cU"));
+  const X0 = bindRange("uX", "ouX", v => fmt(v, 2)), Dm = bindRange("uD", "ouD", v => fmt(v, 2));
+  const POT = [
+    { U: x => (x * x - 1) ** 2, dU: x => 4 * x * (x * x - 1), y0: -0.5, y1: 5, x0: -1.75, eq: [[-1, "ευσταθής"], [0, "ασταθής"], [1, "ευσταθής"]] },
+    { U: x => x * x, dU: x => 2 * x, y0: -0.4, y1: 4.5, x0: 1.5, eq: [[0, "ευσταθής"]] },
+    { U: x => x ** 3 - 3 * x, dU: x => 3 * x * x - 3, y0: -2.8, y1: 3.4, x0: 0.2, eq: [[-1, "ασταθής"], [1, "ευσταθής"]] },
+  ];
+  const s = { k: 0, x: -1.75, v: 0, running: false, esc: false, E0: 0 };
+  const reset = () => { const p = POT[s.k]; Object.assign(s, { x: +X0.value, v: 0, running: false, esc: false }); s.E0 = p.U(s.x); sc.draw(); };
+  const sc = { el: $("cU"), canvases: [st], get running(){ return s.running; },
+    step(dt){ const p = POT[s.k], c = +Dm.value, n = 20, h = dt / n;
+      for (let i = 0; i < n; i++){ s.v += (-p.dU(s.x) - c * s.v) * h; s.x += s.v * h; }
+      if (Math.abs(s.x) > 2.15){ s.esc = true; s.running = false; }
+      if (c > 0 && Math.abs(s.v) < 1e-3 && Math.abs(p.dU(s.x)) < 1e-3) s.running = false; },
+    draw(){
+      const p = POT[s.k], { ctx, w, h } = st;
+      const A = axes(st, { x0: -2.1, x1: 2.1, y0: p.y0, y1: p.y1, yLabel: "U(x)", xLabel: "x →", ticks: false });
+      const E = 0.5 * s.v * s.v + p.U(s.x);
+      // allowed region
+      ctx.save(); ctx.beginPath(); ctx.rect(A.pad.l, A.pad.t, A.pw, A.ph); ctx.clip();
+      ctx.globalAlpha = 0.16; ctx.fillStyle = C.accent;
+      for (let px = 0; px < A.pw; px += 2){ const x = -2.1 + 4.2 * px / A.pw, u = p.U(x); if (u <= E) ctx.fillRect(A.pad.l + px, A.Y(E), 2, A.Y(u) - A.Y(E)); }
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 2.5; ctx.beginPath();
+      for (let px = 0; px <= A.pw; px += 2){ const x = -2.1 + 4.2 * px / A.pw; px ? ctx.lineTo(A.pad.l + px, A.Y(p.U(x))) : ctx.moveTo(A.pad.l, A.Y(p.U(x))); }
+      ctx.stroke();
+      ctx.strokeStyle = C["f-app"]; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]); ctx.beginPath(); ctx.moveTo(A.pad.l, A.Y(E)); ctx.lineTo(A.pad.l + A.pw, A.Y(E)); ctx.stroke(); ctx.setLineDash([]);
+      text(ctx, "E = " + fmt(E, 2), A.pad.l + A.pw - 4, A.Y(E) - 9, C["f-app"], 11, "right", 600);
+      // turning points
+      let prev = p.U(-2.1) - E;
+      for (let i = 1; i <= 840; i++){ const x = -2.1 + 4.2 * i / 840, d = p.U(x) - E; if (prev * d < 0){ ctx.strokeStyle = C.bad; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(A.X(x), A.Y(E) - 8); ctx.lineTo(A.X(x), A.Y(E) + 8); ctx.stroke(); } prev = d; }
+      p.eq.forEach(([x, n]) => { ctx.fillStyle = n === "ευσταθής" ? C.good : C.bad; ctx.beginPath(); ctx.arc(A.X(x), A.Y(p.U(x)), 3.5, 0, 7); ctx.fill(); text(ctx, n, A.X(x), A.Y(p.U(x)) + (n === "ευσταθής" ? 14 : -14), ctx.fillStyle, 10, "center", 600); });
+      // particle
+      if (!s.esc){ ctx.fillStyle = C.accent; ctx.beginPath(); ctx.arc(A.X(s.x), A.Y(p.U(s.x)) - 8, 8, 0, 7); ctx.fill();
+        if (Math.abs(p.dU(s.x)) > 0.02) arrow(ctx, A.X(s.x), A.Y(p.U(s.x)) - 24, A.X(s.x) - Math.sign(p.dU(s.x)) * Math.min(50, 10 + 8 * Math.abs(p.dU(s.x))), A.Y(p.U(s.x)) - 24, C["f-wt"], "F = −dU/dx", 2.5); }
+      ctx.restore();
+      text(ctx, s.esc ? "Το σωματίδιο διέφυγε: η E ξεπερνά το φράγμα" : (s.running ? "" : "Πάτα «Άφησέ το»"), w / 2, h - 8, C.ink, 12, "center", 600);
+      const K = 0.5 * s.v * s.v;
+      ro("uOut", [["Θέση x", fmt(s.x, 2)], ["K = ½mv²", fmt(K, 3)], ["U(x)", fmt(p.U(s.x), 3)], ["E = K + U", fmt(E, 3), 1], ["Απώλεια από απόσβεση", fmt(s.E0 - E, 3)]]);
+    } };
+  document.querySelectorAll(".pot").forEach(b => b.addEventListener("click", () => { s.k = +b.dataset.u; document.querySelectorAll(".pot").forEach(bb => bb.setAttribute("aria-pressed", bb === b)); X0.value = POT[s.k].x0; X0.dispatchEvent(new Event("input")); }));
+  X0.addEventListener("input", reset); Dm.addEventListener("input", () => { if (!s.running) reset(); });
+  $("uGo").addEventListener("click", () => { reset(); s.running = true; });
+  $("uStop").addEventListener("click", () => { s.running = false; });
+  reset();
+  addScene(sc);
+}
+
+/* ======================= 4.1 skier: K + U + Q ======================= */
+{
+  const st = setupCanvas($("cS")), gs = setupCanvas($("gS"));
+  const Mu = bindRange("sMu", "osMu", v => fmt(v, 3)), M = bindRange("sM", "osM", v => v + " kg");
+  const y = x => 30 * Math.exp(-x / 25) + 7 * Math.sin(Math.PI * x / 40) ** 2;
+  const dy = x => -1.2 * Math.exp(-x / 25) + 7 * (Math.PI / 40) * Math.sin(Math.PI * x / 20);
+  const s = { x: 0, v: 0, Q: 0, t: 0, running: false, rest: false, hist: [[], [], [], []] };
+  const sc = { el: $("cS"), canvases: [st, gs], get running(){ return s.running; },
+    step(dt){
+      const m = +M.value, mu = +Mu.value, n = 30, h = dt * 1.5 / n;
+      for (let i = 0; i < n; i++){
+        const sl = dy(s.x), ca = 1 / Math.sqrt(1 + sl * sl), sa = sl * ca;
+        if (Math.abs(s.v) < 0.05 && Math.abs(sl) <= mu && s.t > 1){ s.v = 0; s.rest = true; s.running = false; break; }
+        const at = -G * sa - (s.v !== 0 ? Math.sign(s.v) : Math.sign(-sa)) * mu * G * ca;
+        const vOld = s.v; s.v += at * h;
+        if (vOld !== 0 && Math.sign(s.v) !== Math.sign(vOld) && Math.abs(sl) <= mu){ s.v = 0; }
+        const ds = s.v * h; s.x += ds * ca; s.Q += mu * m * G * ca * Math.abs(ds); s.t += h;
+        if (s.x < 0){ s.x = -s.x; s.v = Math.abs(s.v); } if (s.x > 100){ s.x = 200 - s.x; s.v = -Math.abs(s.v); }
+      }
+      const K = 0.5 * m * s.v * s.v, U = m * G * y(s.x);
+      const H = s.hist; if (!H[0].length || s.t - H[0][H[0].length - 1][0] > 0.1){ H[0].push([s.t, K / 1000]); H[1].push([s.t, U / 1000]); H[2].push([s.t, s.Q / 1000]); H[3].push([s.t, (K + U + s.Q) / 1000]); }
+      if (s.t > 180) s.running = false;
+    },
+    draw(){
+      const m = +M.value, { ctx, w, h } = st; ctx.clearRect(0, 0, w, h);
+      const bw = 70, pw = w - bw - 40, ox = 16, oy = h - 20, sy = (h - 50) / 32, X = x => ox + x * pw / 100, Y = yy => oy - yy * sy;
+      ctx.fillStyle = C.ground; ctx.globalAlpha = 0.35; ctx.beginPath(); ctx.moveTo(X(0), oy);
+      for (let x = 0; x <= 100; x += 0.5) ctx.lineTo(X(x), Y(y(x))); ctx.lineTo(X(100), oy); ctx.closePath(); ctx.fill(); ctx.globalAlpha = 1;
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 2; ctx.beginPath(); for (let x = 0; x <= 100; x += 0.5) x ? ctx.lineTo(X(x), Y(y(x))) : ctx.moveTo(X(x), Y(y(x))); ctx.stroke();
+      const K = 0.5 * m * s.v * s.v, U = m * G * y(s.x), E0 = m * G * y(0);
+      // reachable height line
+      const hr = (E0 - s.Q) / (m * G); ctx.strokeStyle = C["f-app"]; ctx.setLineDash([5, 4]); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(X(0), Y(hr)); ctx.lineTo(X(100), Y(hr)); ctx.stroke(); ctx.setLineDash([]);
+      text(ctx, "μέγιστο προσιτό ύψος", X(100), Y(hr) - 8, C["f-app"], 10, "right");
+      // skier
+      const sl = dy(s.x), ang = Math.atan(sl), px = X(s.x), py = Y(y(s.x));
+      ctx.save(); ctx.translate(px, py); ctx.rotate(-Math.atan(sl * sy / (pw / 100)));
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-12, -2); ctx.lineTo(12, -2); ctx.stroke();
+      ctx.fillStyle = C.accent; roundRect(ctx, -4, -24, 8, 20, 3); ctx.fill(); ctx.beginPath(); ctx.arc(0, -29, 5, 0, 7); ctx.fill(); ctx.restore();
+      // energy bars
+      const bx = w - bw - 10, top = 24, bh = h - 60, sc2 = bh / E0;
+      [[K, C["f-app"], "K"], [U, C["f-norm"], "U"], [s.Q, C["f-fric"], "Q"]].reduce((base, [v, c, l]) => { const hh = v * sc2; ctx.fillStyle = c; ctx.fillRect(bx + 18, top + bh - base - hh, 34, hh); if (hh > 12) text(ctx, l, bx + 35, top + bh - base - hh / 2, "#fff", 11, "center", 700); return base + hh; }, 0);
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 1; ctx.strokeRect(bx + 18, top, 34, bh);
+      text(ctx, "E₀", bx + 35, top - 10, C.ink, 11, "center", 600);
+      text(ctx, s.rest ? "Ο σκιέρ σταμάτησε: η αρχική U έγινε θερμότητα και U" : (s.running ? "v = " + fmt(Math.abs(s.v), 1) + " m/s" : "Πάτα «Ξεκίνα»"), 12, 16, C.ink, 12, "left", 600);
+      plot(gs, [{ pts: s.hist[0], color: C["f-app"], label: "K" }, { pts: s.hist[1], color: C["f-norm"], label: "U" }, { pts: s.hist[2], color: C["f-fric"], label: "Q" }, { pts: s.hist[3], color: C.ink, dash: true, label: "Σ" }], { tMax: Math.max(30, Math.ceil(s.t / 10) * 10), yLabel: "ενέργεια [kJ]", yMin: E0 / 1000 });
+      ro("sOut", [["Ύψος y", fmt(y(s.x), 1) + " m"], ["Ταχύτητα", fmt(Math.abs(s.v), 1) + " m/s"], ["K", J(K)], ["U = mgy", J(U)], ["Q (θερμότητα)", J(s.Q)], ["K + U + Q", J(K + U + s.Q), 1]]);
+    } };
+  const reset = () => { Object.assign(s, { x: 0, v: 0, Q: 0, t: 0, running: false, rest: false, hist: [[], [], [], []] }); sc.draw(); };
+  $("sGo").addEventListener("click", () => { reset(); s.running = true; });
+  $("sReset").addEventListener("click", reset);
+  [Mu, M].forEach(el => el.addEventListener("input", reset));
+  addScene(sc);
+}
+
+/* ======================= 4.2 spring launcher ======================= */
+{
+  const st = setupCanvas($("cL"));
+  const K = bindRange("lK", "olK", v => v + " N/m"), Xc = bindRange("lX", "olX", v => fmt(v * 100, 0) + " cm"), M = bindRange("lM", "olM", v => fmt(v, 1) + " kg"), T = bindRange("lT", "olT", v => v + "°"), Mu = bindRange("lMu", "olMu", v => fmt(v, 2));
+  const s = { d: 0, v: 0, running: false, stopped: false, vMax: 0 };
+  const par = () => { const k = +K.value, x = +Xc.value, m = +M.value, th = +T.value * Math.PI / 180, mu = +Mu.value, r = G * (Math.sin(th) + mu * Math.cos(th));
+    return { k, x, m, th, mu, r, E: 0.5 * k * x * x, dTh: k * x * x / (2 * m * r), starts: k * x > m * r }; };
+  const sc = { el: $("cL"), canvases: [st], get running(){ return s.running; },
+    step(dt){ const p = par(), n = 40, h = dt / n;
+      for (let i = 0; i < n; i++){ const comp = Math.max(0, p.x - s.d), a = (p.k * comp) / p.m - p.r; s.v += a * h; if (s.v <= 0){ s.v = 0; s.running = false; s.stopped = true; break; } s.d += s.v * h; s.vMax = Math.max(s.vMax, s.v); } },
+    draw(){
+      const p = par(), { ctx, w, h } = st; ctx.clearRect(0, 0, w, h);
+      const Lm = Math.max(p.dTh, p.x) * 1.15 + 0.05, ox = 40, oy = h - 30, avail = Math.min((w - 90) / Math.cos(p.th), (h - 60) / Math.sin(p.th)), S = avail / Lm;
+      const ux = Math.cos(p.th), uy = -Math.sin(p.th), P = d => [ox + 30 * ux + d * S * ux, oy + 30 * uy + d * S * uy];
+      ctx.fillStyle = C.ground; ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(ox + (avail + 40) * ux, oy + (avail + 40) * uy); ctx.lineTo(ox + (avail + 40) * ux, oy); ctx.closePath(); ctx.globalAlpha = 0.3; ctx.fill(); ctx.globalAlpha = 1;
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(ox + (avail + 40) * ux, oy + (avail + 40) * uy); ctx.stroke();
+      // spring from wall (d = -x0... ) natural end at d = x (block front starts at 0 when compressed)
+      const comp = Math.max(0, p.x - s.d), [wx, wy] = P(-0.0), base = [ox + 6 * ux, oy + 6 * uy], end = P(p.x - comp);
+      ctx.strokeStyle = C["f-wt"]; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(...base);
+      const nz = 10, nx = -uy, ny = ux; for (let i = 1; i < nz; i++){ const f = i / nz, sg = i % 2 ? 1 : -1; ctx.lineTo(base[0] + (end[0] - base[0]) * f + nx * 7 * sg, base[1] + (end[1] - base[1]) * f + ny * 7 * sg); } ctx.lineTo(...end); ctx.stroke();
+      // natural length mark & theoretical stop
+      const [nxp, nyp] = P(p.x); ctx.fillStyle = C.muted; ctx.beginPath(); ctx.arc(nxp, nyp, 2.5, 0, 7); ctx.fill();
+      const [tx, ty] = P(p.dTh); ctx.strokeStyle = C["f-app"]; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(tx + nx * -4, ty + ny * -4); ctx.lineTo(tx - nx * 40, ty - ny * 40); ctx.stroke(); ctx.setLineDash([]);
+      text(ctx, "d (θεωρία)", tx - nx * 48, ty - ny * 48, C["f-app"], 10, "center", 600);
+      // block
+      const [bx, by] = P(s.d); ctx.save(); ctx.translate(bx, by); ctx.rotate(-p.th); roundRect(ctx, 0, -24, 28, 24, 4); ctx.fillStyle = C.accent; ctx.fill(); ctx.restore();
+      if (!p.starts) text(ctx, "kx ≤ mg(sinθ + μcosθ): το σώμα δεν ξεκινά", 12, 16, C.bad, 12, "left", 600);
+      else if (s.stopped) text(ctx, Math.tan(p.th) > p.mu ? "Σταμάτησε και θα γλιστρήσει πίσω (tanθ > μ)" : "Σταμάτησε και μένει ακίνητο (tanθ ≤ μ)", 12, 16, C.ink, 12, "left", 600);
+      const U = p.m * G * s.d * Math.sin(p.th), Qf = p.mu * p.m * G * Math.cos(p.th) * s.d, Es = 0.5 * p.k * comp * comp, Kk = 0.5 * p.m * s.v * s.v;
+      ro("lOut", [["E_ελ = ½kx²", J(p.E, 2)], ["d = kx²/[2mg(sinθ+μcosθ)]", fmt(p.dTh, 3) + " m", 1], ["Διανυθέν s", fmt(s.d, 3) + " m"], ["ΔU_g", J(U, 2)], ["Q", J(Qf, 2)], ["K + U_ελ", J(Kk + Es, 2)], ["v μέγιστη", fmt(s.vMax, 2) + " m/s"]]);
+    } };
+  const reset = () => { Object.assign(s, { d: 0, v: 0, running: false, stopped: false, vMax: 0 }); sc.draw(); };
+  $("lGo").addEventListener("click", () => { reset(); if (par().starts) s.running = true; s.v = 1e-9; });
+  $("lReset").addEventListener("click", reset);
+  [K, Xc, M, T, Mu].forEach(el => el.addEventListener("input", reset));
+  addScene(sc);
+}
+
+/* ======================= 4.3 crane power ======================= */
+{
+  const st = setupCanvas($("cC")), gs = setupCanvas($("gC"));
+  const Ms = bindRange("cMs", "ocMs", v => v + " kg"), V = bindRange("cV", "ocV", v => fmt(v, 2) + " m/s"), A = bindRange("cA", "ocA", v => fmt(v, 2) + " m/s²"), E = bindRange("cE", "ocE", v => Math.round(v * 100) + "%");
+  const Hh = 8;
+  const prof = () => { const m = +Ms.value, a = +A.value, eta = +E.value; let v = +V.value; let ta = v / a, da = v * v / (2 * a);
+    if (2 * da > Hh){ v = Math.sqrt(a * Hh); ta = v / a; da = Hh / 2; }
+    const tc = (Hh - 2 * da) / v, T = 2 * ta + tc; return { m, a, eta, v, ta, tc, T }; };
+  const kin = (p, t) => { t = Math.min(Math.max(t, 0), p.T);
+    if (t < p.ta) return { y: 0.5 * p.a * t * t, v: p.a * t, acc: p.a };
+    if (t < p.ta + p.tc) { const u = t - p.ta; return { y: 0.5 * p.a * p.ta ** 2 + p.v * u, v: p.v, acc: 0 }; }
+    const u = t - p.ta - p.tc; return { y: 0.5 * p.a * p.ta ** 2 + p.v * p.tc + p.v * u - 0.5 * p.a * u * u, v: p.v - p.a * u, acc: t >= p.T ? 0 : -p.a }; };
+  const s = { t: 0, running: false, Ein: 0 };
+  const sc = { el: $("cC"), canvases: [st, gs], get running(){ return s.running; },
+    step(dt){ const p = prof(); dt *= Math.max(1, p.T / 8); const k = kin(p, s.t); s.Ein += p.m * (G + k.acc) * k.v / p.eta * dt; s.t += dt; if (s.t >= p.T){ s.t = p.T; s.running = false; } },
+    draw(){
+      const p = prof(), k = kin(p, s.t), { ctx, w, h } = st; ctx.clearRect(0, 0, w, h);
+      const gy = h - 16, tx = Math.min(90, w * 0.18), topY = 24, jibX = Math.min(w - 120, tx + 230), sy = (gy - topY - 60) / Hh;
+      ctx.fillStyle = C.ground; ctx.fillRect(0, gy, w, 3);
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(tx, gy); ctx.lineTo(tx, topY); ctx.lineTo(jibX + 20, topY); ctx.stroke();
+      ctx.lineWidth = 1; for (let yy = topY; yy < gy - 12; yy += 18){ ctx.beginPath(); ctx.moveTo(tx - 8, yy); ctx.lineTo(tx + 8, yy + 18); ctx.stroke(); }
+      ctx.fillStyle = C["f-other"]; roundRect(ctx, tx - 22, topY + 6, 34, 22, 4); ctx.fill(); text(ctx, "M", tx - 5, topY + 17, "#fff", 12, "center", 700);
+      const loadY = gy - 34 - k.y * sy;
+      ctx.strokeStyle = C.muted; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(jibX, topY); ctx.lineTo(jibX, loadY); ctx.stroke();
+      roundRect(ctx, jibX - 24, loadY, 48, 34, 4); ctx.fillStyle = C.accent; ctx.fill(); text(ctx, fmt(p.m / 1000, 1) + " t", jibX, loadY + 17, "#fff", 11, "center", 700);
+      const F = p.m * (G + k.acc);
+      arrow(ctx, jibX + 34, loadY + 17, jibX + 34, loadY + 17 - F / (p.m * G) * 30, C["f-app"], "T");
+      arrow(ctx, jibX - 34, loadY + 17, jibX - 34, loadY + 47, C["f-wt"], "mg", 2.5);
+      text(ctx, "8 m", jibX + 70, gy - 34 - Hh * sy / 2, C.muted, 11);
+      ctx.strokeStyle = C.line; ctx.setLineDash([3, 4]); ctx.beginPath(); ctx.moveTo(jibX + 30, gy - 34 - Hh * sy); ctx.lineTo(jibX + 90, gy - 34 - Hh * sy); ctx.stroke(); ctx.setLineDash([]);
+      const phase = s.t <= 0 ? "Πάτα «Ανύψωση»" : (s.t < p.ta ? "Επιτάχυνση: T = m(g + a)" : s.t < p.ta + p.tc ? "Σταθερή ταχύτητα: T = mg" : s.t < p.T ? "Επιβράδυνση: T = m(g − a)" : "Ολοκληρώθηκε");
+      text(ctx, phase, w - 12, 16, C.ink, 12, "right", 600);
+      // P–t
+      const pts = [], ptsIn = []; for (let i = 0; i <= 200; i++){ const t = p.T * i / 200; if (t > s.t) break; const q = kin(p, t), P = p.m * (G + q.acc) * q.v / 1000; pts.push([t, P]); ptsIn.push([t, P / p.eta]); }
+      const Ppk = p.m * (G + p.a) * p.v / 1000;
+      plot(gs, [{ pts, color: C.accent, label: "P" }, { pts: ptsIn, color: C["f-fric"], dash: true, label: "P/η" }], { tMax: p.T, yLabel: "ισχύς [kW]", yMin: Ppk / p.eta });
+      ro("cOut", [["Ταχύτητα", fmt(k.v, 2) + " m/s"], ["Δύναμη συρματόσχοινου", fmt(F / 1000, 2) + " kN"], ["P = F·v", fmt(F * k.v / 1000, 2) + " kW", 1], ["P αιχμής m(g+a)v", fmt(Ppk, 2) + " kW"], ["P κινητήρα αιχμής", fmt(Ppk / p.eta, 2) + " kW", 1], ["mgH (ωφέλιμο)", J(p.m * G * Hh)], ["E εισόδου", J(s.Ein)], ["Χρόνος", fmt(s.t, 1) + " / " + fmt(p.T, 1) + " s"]]);
+    } };
+  const reset = () => { Object.assign(s, { t: 0, running: false, Ein: 0 }); sc.draw(); };
+  $("cGo").addEventListener("click", () => { reset(); s.running = true; });
+  $("cReset").addEventListener("click", reset);
+  [Ms, V, A, E].forEach(el => el.addEventListener("input", reset));
+  addScene(sc);
+}
+
+/* ======================= table of contents ======================= */
+{
+  document.documentElement.lang = "el";
+  const toc = $("toc"); let html = "";
+  document.querySelectorAll("main section.law").forEach(sec => {
+    const h2 = sec.querySelector(".law-head h2"); if (!h2) return; const ch = sec.dataset.ch;
+    html += `<a class="ch" href="#${sec.id}"><span class="n">${ch || ""}</span><span class="t">${h2.textContent}</span><span class="dots"></span></a>`;
+    if (ch){ let k = 0; sec.querySelectorAll(":scope > h3").forEach(h => { k++; if (!h.id) h.id = sec.id + "-" + k; html += `<a class="sub" href="#${h.id}"><span class="n">${ch}.${k}</span><span class="t">${h.textContent}</span><span class="dots"></span></a>`; }); }
+  });
+  if (toc) toc.insertAdjacentHTML("beforeend", html);
+}
+
+/* ======================= left contents tree ======================= */
+{
+  const tree = $("tree"), body = $("treeBody"), btn = $("treeBtn"), scrim = $("treeScrim");
+  let html = "";
+  document.querySelectorAll("main section.law").forEach(sec => {
+    const h2 = sec.querySelector(".law-head h2"); if (!h2) return; const ch = sec.dataset.ch;
+    let kids = "";
+    if (ch){ sec.querySelectorAll(":scope > h3").forEach((h, k) => { kids += `<a href="#${h.id}" data-t="${h.id}"><span class="n">${ch}.${k + 1}</span><span>${h.textContent}</span></a>`; }); }
+    else if (sec.id === "ask"){ sec.querySelectorAll(".ex h3").forEach((h, k) => { const id = h.id || (h.id = "ex-" + (k + 1)); const t = h.childNodes[0].textContent.replace(/^\d+\.\s*/, "").trim(); kids += `<a href="#${id}" data-t="${id}"><span class="n">${k + 1}</span><span>${t}</span></a>`; }); }
+    if (kids) html += `<details data-sec="${sec.id}"><summary data-t="${sec.id}"><span class="n">${ch || ""}</span><span>${h2.textContent}</span></summary><a href="#${sec.id}" data-t="${sec.id}"><span class="n">↑</span><span>Αρχή ${ch ? "κεφαλαίου" : "ενότητας"}</span></a>${kids}</details>`;
+    else html += `<a class="top" href="#${sec.id}" data-t="${sec.id}"><span>${h2.textContent}</span></a>`;
+  });
+  body.innerHTML = html;
+  const wide = matchMedia("(min-width:1150px)");
+  const open = o => { tree.classList.toggle("open", o); scrim.classList.toggle("on", o && !wide.matches); };
+  btn.addEventListener("click", () => open(true)); $("treeClose").addEventListener("click", () => open(false)); scrim.addEventListener("click", () => open(false));
+  body.addEventListener("click", e => { if (e.target.closest("a") && !wide.matches) open(false); });
+  // scroll-spy
+  const targets = [...document.querySelectorAll("main section.law, main section.law > h3, #ask .ex h3")];
+  const links = [...body.querySelectorAll("[data-t]")];
+  let cur = null;
+  const spy = () => {
+    let best = null; for (const t of targets){ if (t.getBoundingClientRect().top < 140) best = t; else break; }
+    if (!best || best === cur) return; cur = best;
+    links.forEach(l => l.classList.toggle("active", l.dataset.t === best.id && l.tagName === "A"));
+    const sec = best.closest("section.law");
+    body.querySelectorAll("details").forEach(d => { const on = sec && d.dataset.sec === sec.id; if (on) d.open = true; d.querySelector("summary").classList.toggle("active", on); });
+  };
+  addEventListener("scroll", () => requestAnimationFrame(spy), { passive: true }); spy();
+}
+/* ======================= progress ======================= */
+const KEY = "energy-physics1-v1";
+let store = {};
+try { store = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e) { store = {}; }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e) {} };
+function updateProgress(){
+  const laws = ["ch1", "ch2", "ch3", "ch4"], n = laws.filter(k => store["L_" + k]).length;
+  $("progText").textContent = `${n} από 4 κεφάλαια`;
+  $("progBar").style.width = (n / 4 * 100) + "%";
+  document.querySelectorAll(".rail a[data-sec]").forEach(a => a.classList.toggle("done", !!store["L_" + a.dataset.sec]));
+}
+document.querySelectorAll("[data-learn]").forEach(cb => {
+  cb.checked = !!store["L_" + cb.dataset.learn];
+  cb.addEventListener("change", () => { store["L_" + cb.dataset.learn] = cb.checked; save(); updateProgress(); });
+});
+updateProgress();
+
+/* ======================= exercises ======================= */
+const parseNum = s => { const v = parseFloat(String(s).trim().replace(",", ".").replace("−", "-")); return isNaN(v) ? null : v; };
+document.querySelectorAll(".ex").forEach((ex, i) => {
+  const inputs = [...ex.querySelectorAll("input[data-ans]")], fb = ex.querySelector(".feedback"), h3 = ex.querySelector("h3");
+  const mark = () => { if (!h3.querySelector(".tag.ok")){ const t = document.createElement("span"); t.className = "tag ok"; t.textContent = "✓ λύθηκε"; h3.append(t); } };
+  if (store["E" + i]) mark();
+  ex.querySelector(".check").addEventListener("click", () => {
+    let ok = 0;
+    inputs.forEach(inp => {
+      const v = parseNum(inp.value), ans = +inp.dataset.ans, tol = +inp.dataset.tol;
+      const good = v !== null && (Math.abs(ans) < 1e-9 ? Math.abs(v) <= 0.01 : Math.abs(v - ans) <= Math.abs(ans) * tol);
+      inp.classList.toggle("ok", good); inp.classList.toggle("bad", !good); if (good) ok++;
+    });
+    if (ok === inputs.length){ fb.textContent = "Σωστά! 🎉"; fb.style.color = "var(--good)"; store["E" + i] = true; save(); mark(); }
+    else { fb.textContent = `${ok} από ${inputs.length} σωστά. Δες τα κόκκινα πεδία, ή άνοιξε τη λύση.`; fb.style.color = "var(--bad)"; }
+  });
+});
+
+/* ======================= quiz ======================= */
+const Q = [
+  ["Σπρώχνεις έναν τοίχο με 500 N για 2 λεπτά και ιδρώνεις. Πόσο έργο έκανε η δύναμή σου πάνω στον τοίχο;", ["60 kJ", "Μηδέν", "Εξαρτάται από τη μάζα του τοίχου"], 1, "Ο τοίχος δεν μετατοπίστηκε, άρα W = F·Δr = 0. Η κούραση σου οφείλεται σε εσωτερική χημική ενέργεια που γίνεται θερμότητα στους μυς, όχι σε έργο πάνω στον τοίχο."],
+  ["Σε ομαλή κυκλική κίνηση, το έργο της κεντρομόλου δύναμης σε μία πλήρη περιφορά είναι:", ["2πr·F", "Μηδέν", "Αρνητικό"], 1, "Η κεντρομόλος είναι πάντα κάθετη στην ταχύτητα, άρα F·dr = 0 σε κάθε στοιχειώδη μετατόπιση. Γι' αυτό η K, και το μέτρο της ταχύτητας, μένουν σταθερά."],
+  ["Διπλασιάζεις την ταχύτητα ενός αυτοκινήτου. Η απόσταση φρεναρίσματος, με ίδια τριβή:", ["Διπλασιάζεται", "Τετραπλασιάζεται", "Μένει ίδια"], 1, "Από το θεώρημα έργου–ενέργειας, μ m g s = ½ m v₀², άρα s ∝ v₀². Διπλάσια ταχύτητα σημαίνει τετραπλάσια απόσταση."],
+  ["Δύο κιβώτια με μάζες m και 2m φρενάρουν από την ίδια ταχύτητα στο ίδιο δάπεδο. Ποιο σταματά πρώτο (σε απόσταση);", ["Το ελαφρύ", "Το βαρύ", "Σταματούν στην ίδια απόσταση"], 2, "Το βαρύ έχει διπλάσια K αλλά δέχεται και διπλάσια τριβή. Η μάζα απλοποιείται: s = v₀²/(2μg)."],
+  ["Ποια από τις παρακάτω δυνάμεις ΔΕΝ είναι συντηρητική;", ["Βάρος", "Δύναμη ελατηρίου", "Τριβή ολίσθησης"], 2, "Το έργο της τριβής εξαρτάται από τον δρόμο και σε κλειστή διαδρομή είναι αρνητικό, όχι μηδέν. Γι' αυτό δεν ορίζεται δυναμική ενέργεια για την τριβή."],
+  ["Η τιμή της δυναμικής ενέργειας U σε ένα σημείο:", ["Έχει απόλυτη φυσική σημασία", "Εξαρτάται από το σημείο αναφοράς, μόνο οι διαφορές ΔU έχουν φυσική σημασία", "Είναι πάντα θετική"], 1, "Η U ορίζεται μέχρι μια προσθετική σταθερά. Η δύναμη F = −dU/dx και τα έργα εξαρτώνται μόνο από διαφορές. Η βαρυτική U = −GMm/r είναι μάλιστα αρνητική."],
+  ["Σε ένα διάγραμμα U(x), στο σημείο όπου η U έχει τοπικό μέγιστο:", ["Η δύναμη είναι μέγιστη", "Η δύναμη είναι μηδέν και η ισορροπία ασταθής", "Η δύναμη είναι μηδέν και η ισορροπία ευσταθής"], 1, "F = −dU/dx = 0 σε κάθε ακρότατο. Στο μέγιστο, μια μικρή απομάκρυνση δίνει δύναμη που απομακρύνει κι άλλο, άρα ασταθής ισορροπία."],
+  ["Σωματίδιο με ενέργεια E κινείται σε δυναμικό U(x). Μπορεί να βρεθεί σε περιοχή όπου U > E;", ["Ναι, αν κινείται γρήγορα", "Όχι, γιατί εκεί θα ήταν K = E − U < 0", "Ναι, για λίγο"], 1, "Η κινητική ενέργεια δεν μπορεί να είναι αρνητική, άρα (κλασικά) το σωματίδιο κινείται μόνο όπου U ≤ E. Στα σημεία U = E αναστρέφει."],
+  ["Μπάλα αφήνεται από ύψος h σε τσουλήθρα χωρίς τριβές με διάφορες κλίσεις. Η ταχύτητα στη βάση:", ["Εξαρτάται από το σχήμα της τσουλήθρας", "Είναι πάντα √(2gh)", "Είναι μεγαλύτερη στην πιο απότομη"], 1, "Η κάθετη αντίδραση δεν παράγει έργο και το βάρος είναι συντηρητικό, άρα mgh = ½mv². Το σχήμα επηρεάζει μόνο τον χρόνο, όχι την τελική ταχύτητα."],
+  ["Σκιέρ κατεβαίνει πίστα με τριβή. Ποια ποσότητα διατηρείται;", ["K + U", "K + U + Q, με Q τη θερμότητα από την τριβή", "Μόνο η K"], 1, "Η μηχανική ενέργεια μειώνεται κατά |W_f|, που εμφανίζεται ως θερμότητα. Η συνολική ενέργεια K + U + Q μένει σταθερή."],
+  ["Γερανός ανυψώνει φορτίο με σταθερή ταχύτητα v. Η ισχύς που δίνει στο φορτίο είναι:", ["Μηδέν, αφού a = 0", "mgv", "½mv²"], 1, "Με σταθερή ταχύτητα η δύναμη του συρματόσχοινου είναι mg, άρα P = F·v = mgv. Η K δεν αλλάζει, αλλά η U αυξάνεται με ρυθμό mgv."],
+  ["Κινητήρας (η = 0.92) κινεί μειωτήρα (η = 0.95) που κινεί αντλία (η = 0.80). Για 10 kW στο νερό χρειάζεται ηλεκτρική ισχύς περίπου:", ["≈ 11.4 kW", "≈ 14.3 kW", "≈ 12.0 kW"], 1, "η_ολ = 0.92·0.95·0.80 ≈ 0.699, άρα P_εισ = 10/0.699 ≈ 14.3 kW. Οι βαθμοί απόδοσης σε σειρά πολλαπλασιάζονται."],
+];
+const qBox = $("quizBox"); let qState = [];
+function renderQuiz(){
+  qBox.innerHTML = ""; qState = Q.map(() => null);
+  Q.forEach(([q, opts, right, why], i) => {
+    const d = document.createElement("div"); d.className = "q";
+    d.innerHTML = `<p>${i + 1}. ${q}</p><div class="opts"></div><div class="why" hidden></div>`;
+    const box = d.querySelector(".opts"), w = d.querySelector(".why");
+    opts.forEach((o, j) => {
+      const b = document.createElement("button"); b.type = "button"; b.textContent = o;
+      b.addEventListener("click", () => {
+        if (qState[i] !== null) return;
+        qState[i] = j === right;
+        box.querySelectorAll("button").forEach((bb, k) => { if (k === right) bb.classList.add("right"); else if (k === j) bb.classList.add("wrong"); bb.disabled = true; });
+        w.hidden = false; w.textContent = (j === right ? "Σωστά. " : "Όχι ακριβώς. ") + why;
+        updateScore();
+      });
+      box.append(b);
+    });
+    qBox.append(d);
+  });
+  updateScore();
+}
+function updateScore(){ const ans = qState.filter(x => x !== null).length, ok = qState.filter(x => x).length; $("qScore").textContent = ans ? `${ok} / ${ans} σωστές` : `${Q.length} ερωτήσεις`; }
+$("qReset").addEventListener("click", renderQuiz);
+renderQuiz();
+})();
+</script>
+
+
+</body>
+</html>
